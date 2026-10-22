@@ -52,11 +52,11 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --color-bg: #0e1116;
-    --color-surface: #171b22;
-    --color-surface-2: #20252e;
+    --color-surface: #191f29;
+    --color-surface-2: #242a33;
     --color-border: #2e3440;
     --color-text: #eef1f5;
-    --color-text-muted: #9aa4b2;
+    --color-text-muted: #9eb29a;
     --color-primary: #14b8a6;
     --color-primary-hover: #2dd4bf;
     --color-on-primary: #04201d;
@@ -75,7 +75,7 @@
   --color-surface-2: #20252e;
   --color-border: #2e3440;
   --color-text: #eef1f5;
-  --color-text-muted: #9aa4b2;
+  --color-text-muted: #9eb29a;
   --color-primary: #14b8a6;
   --color-primary-hover: #2dd4bf;
   --color-on-primary: #04201d;
@@ -166,8 +166,8 @@ p {
 }
 
 .btn--primary {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
+  background: var(--color-shc);
+  border-color: var(--color-shc);
   color: var(--color-on-primary);
 }
 
@@ -207,6 +207,11 @@ p {
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
+}
+
+.input::placeholder {
+  color: var(--color-text);
+  opacity: 1;
 }
 
 .input--lg {
