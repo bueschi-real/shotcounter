@@ -233,7 +233,6 @@ async function openMenu() {
     className: 'dialog--menu',
     actions: [
       { label: 'Rangliste in neuem Fenster öffnen', value: 'open' },
-      { label: 'Neue Runde (alle Punkte auf 0)', value: 'reset' },
       { label: 'Alle Gruppen löschen', variant: 'danger', value: 'clear' },
       { label: 'Schliessen', value: null },
     ],
@@ -241,16 +240,6 @@ async function openMenu() {
 
   if (choice === 'open') {
     window.open('/rangliste', '_blank');
-  } else if (choice === 'reset') {
-    const ok = await confirmDialog({
-      title: 'Neue Runde starten?',
-      message: 'Alle Gruppen bleiben bestehen, die Punkte werden auf 0 gesetzt.',
-      confirmLabel: 'Neue Runde',
-      danger: true,
-    });
-    if (ok && (await runAction(() => api.resetScores())) !== undefined) {
-      showToast('Neue Runde gestartet', { type: 'success' });
-    }
   } else if (choice === 'clear') {
     const ok = await confirmDialog({
       title: 'Alle Gruppen löschen?',
