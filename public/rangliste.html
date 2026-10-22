@@ -1,0 +1,33 @@
+<!doctype html>
+<!--
+  Ranglisten-Anzeige (Bildschirm)
+  Logik:  /js/pages/rangliste.js
+  Styles: /css/base.css (gemeinsam) + /css/rangliste.css (nur diese Seite)
+  Optionen: /rangliste?top=10&theme=light&clock=0&title=Quiz-Abend
+-->
+<html lang="de-CH" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rangliste</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/rangliste.css" />
+  </head>
+  <body class="page-rangliste">
+    <header class="display-header">
+      <h1 id="app-title">Rangliste</h1>
+      
+      <div class="display-header__meta">
+        <span id="conn" hidden></span>
+        <time id="clock" class="clock" hidden></time>
+      </div>
+     
+    </header>
+
+    <!-- Rangliste (wird per JavaScript erzeugt) -->
+    <main id="board" class="board-wrap"></main>
+
+    <script type="module" src="/js/pages/rangliste.js"></script>
+  </body>
+</html>

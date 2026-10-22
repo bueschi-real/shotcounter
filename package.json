@@ -1,0 +1,21 @@
+{
+  "name": "rangliste",
+  "version": "1.0.0",
+  "description": "Live-Rangliste für Gruppen: Erfassung auf dem Tablet, Anzeige auf einem separaten Bildschirm.",
+  "main": "server.js",
+  "type": "commonjs",
+  "private": true,
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test",
+    "seed": "node --disable-warning=ExperimentalWarning scripts/seed.js",
+    "simulate": "node scripts/simulate.js"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

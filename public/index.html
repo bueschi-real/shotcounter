@@ -1,0 +1,65 @@
+<!doctype html>
+<!--
+  Erfassung (Tablet)
+  Logik:  /js/pages/erfassung.js
+  Styles: /css/base.css (gemeinsam) + /css/erfassung.css (nur diese Seite)
+-->
+<html lang="de-CH">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f766e" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Erfassung</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/erfassung.css" />
+  </head>
+  <body class="page-erfassung">
+    <header class="topbar">
+      <div class="topbar__title">
+        <h1 id="app-title">Rangliste</h1>
+        <span id="count" class="topbar__count"></span>
+      </div>
+      <div class="topbar__actions">
+        <span id="conn"></span>
+        <button id="menu-btn" type="button" class="btn btn--icon btn--ghost" aria-label="Menü" title="Menü">☰</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- Neue Gruppe anlegen -->
+      <form id="create-form" class="create" autocomplete="off">
+        <input
+          id="create-name"
+          class="input input--lg"
+          type="text"
+          placeholder="Neue Gruppe, z. B. Tisch 4"
+          aria-label="Name der neuen Gruppe"
+          enterkeyhint="done"
+        />
+        <button type="submit" class="btn btn--primary btn--lg">＋ Anlegen</button>
+      </form>
+
+      <!-- Suche, Sortierung, Rückgängig -->
+      <div class="toolbar">
+        <input id="search" class="input" type="search" placeholder="Gruppe suchen …" aria-label="Gruppe suchen" />
+        <div class="segmented" role="group" aria-label="Sortierung">
+          <button type="button" data-sort="name">A–Z</button>
+          <button type="button" data-sort="score">Punkte</button>
+          <button type="button" data-sort="newest">Neueste</button>
+        </div>
+        <button id="undo-btn" type="button" class="btn" disabled>↶ Rückgängig</button>
+      </div>
+
+      <!-- Gruppenkarten (werden per JavaScript erzeugt) -->
+      <section id="cards" class="cards" aria-label="Gruppen"></section>
+      <p id="empty" class="empty" hidden></p>
+    </main>
+
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+
+    <script type="module" src="/js/pages/erfassung.js"></script>
+  </body>
+</html>

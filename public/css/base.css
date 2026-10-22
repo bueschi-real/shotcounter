@@ -1,0 +1,478 @@
+/* ==========================================================================
+   base.css: Gemeinsame Grundlagen für beide Seiten
+   --------------------------------------------------------------------------
+   1. Design-Tokens (Farben, Abstände, Radien): hier zentral anpassen
+   2. Reset & Grundlayout
+   3. Schaltflächen & Eingabefelder
+   4. Dialoge & Ziffernblock
+   5. Meldungen (Toasts)
+   6. Verbindungsstatus
+   ========================================================================== */
+
+/* 1. Design-Tokens ------------------------------------------------------- */
+:root {
+  --color-bg: #f4f5f7;
+  --color-surface: #ffffff;
+  --color-surface-2: #eef0f3;
+  --color-border: #d9dde3;
+  --color-text: #14181f;
+  --color-text-muted: #5b6573;
+
+  --color-primary: #0f766e;
+  --color-primary-hover: #0b5f58;
+  --color-on-primary: #ffffff;
+  --color-danger: #c62828;
+  --color-on-danger: #ffffff;
+  --color-success: #15803d;
+  --color-warning: #b45309;
+  --color-minus: #b91c1c;
+  --color-focus: #2563eb;
+  --color-shc: #34e739;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* Mindestgrösse für Touch-Ziele (Empfehlung: ≥ 48px) */
+  --touch: 56px;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 6%), 0 2px 8px rgb(0 0 0 / 6%);
+  --shadow-2: 0 12px 40px rgb(0 0 0 / 25%);
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color-scheme: light;
+}
+
+/* Dunkles Design: automatisch nach Systemeinstellung (ausser hell erzwungen) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-bg: #0e1116;
+    --color-surface: #171b22;
+    --color-surface-2: #20252e;
+    --color-border: #2e3440;
+    --color-text: #eef1f5;
+    --color-text-muted: #9aa4b2;
+    --color-primary: #14b8a6;
+    --color-primary-hover: #2dd4bf;
+    --color-on-primary: #04201d;
+    --color-danger: #ef4444;
+    --color-minus: #f87171;
+    --color-success: #22c55e;
+    --color-focus: #60a5fa;
+    color-scheme: dark;
+  }
+}
+
+/* Dunkles Design: erzwungen über data-theme="dark" (z. B. Rangliste) */
+:root[data-theme='dark'] {
+  --color-bg: #0e1116;
+  --color-surface: #171b22;
+  --color-surface-2: #20252e;
+  --color-border: #2e3440;
+  --color-text: #eef1f5;
+  --color-text-muted: #9aa4b2;
+  --color-primary: #14b8a6;
+  --color-primary-hover: #2dd4bf;
+  --color-on-primary: #04201d;
+  --color-danger: #ef4444;
+  --color-minus: #f87171;
+  --color-success: #22c55e;
+  --color-focus: #60a5fa;
+  color-scheme: dark;
+}
+
+/* 2. Reset & Grundlayout ------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* 3. Schaltflächen & Eingabefelder -------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation; /* kein Doppeltipp-Zoom, sofortige Reaktion */
+  transition: background-color 0.15s, transform 0.08s, border-color 0.15s;
+}
+
+.btn:hover {
+  background: var(--color-surface-2);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+}
+
+.btn--lg {
+  min-height: var(--touch);
+  padding: 0 var(--space-5);
+  font-size: 1.05rem;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.btn--primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn--danger {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-on-danger);
+}
+
+.btn--danger:hover {
+  background: var(--color-danger);
+  filter: brightness(1.08);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.btn--icon {
+  width: 48px;
+  min-width: 48px;
+  padding: 0;
+  font-size: 1.25rem;
+}
+
+.input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.input--lg {
+  min-height: var(--touch);
+  font-size: 1.15rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+/* 4. Dialoge & Ziffernblock --------------------------------------------- */
+.dialog {
+  width: min(480px, calc(100vw - 32px));
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-2);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+
+.dialog__form {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.dialog__title {
+  font-size: 1.3rem;
+}
+
+.dialog__content {
+  display: grid;
+  gap: var(--space-3);
+  color: var(--color-text);
+}
+
+.dialog__content p {
+  color: var(--color-text-muted);
+}
+
+.dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.dialog__actions .btn--danger {
+  margin-right: auto; /* Löschen-Schaltfläche links absetzen */
+}
+
+.dialog__error {
+  min-height: 1.4em;
+  color: var(--color-danger) !important;
+  font-weight: 600;
+}
+
+.input--pin {
+  margin-top: var(--space-3);
+  text-align: center;
+  letter-spacing: 0.4em;
+  font-size: 1.6rem;
+}
+
+/* Menü-Dialog: Schaltflächen untereinander */
+.dialog--menu .dialog__actions {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.dialog--menu .dialog__actions .btn--danger {
+  margin-right: 0;
+}
+
+/* Ziffernblock */
+.dialog--keypad {
+  width: min(420px, calc(100vw - 24px));
+}
+
+.keypad__display {
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  font-size: 2.6rem;
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-success);
+}
+
+.keypad__display.is-negative {
+  color: var(--color-minus);
+}
+
+.keypad__presets {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.keypad__key {
+  min-height: 60px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.keypad__presets .keypad__key {
+  min-height: 44px;
+  font-size: 1rem;
+}
+
+.keypad__key:active {
+  background: var(--color-surface-2);
+  transform: scale(0.95);
+}
+
+.keypad__key--fn {
+  background: var(--color-surface-2);
+}
+
+.keypad__key.is-negative {
+  color: var(--color-minus);
+}
+
+/* 5. Meldungen (Toasts) -------------------------------------------------- */
+.toasts {
+  position: fixed;
+  left: 50%;
+  bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  z-index: 100;
+  display: grid;
+  gap: var(--space-2);
+  width: min(560px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background: #1f2937;
+  color: #f9fafb;
+  box-shadow: var(--shadow-2);
+  pointer-events: auto;
+  animation: toast-in 0.2s ease-out;
+}
+
+.toast--success {
+  border-left: 6px solid #22c55e;
+}
+
+.toast--error {
+  background: #7f1d1d;
+}
+
+.toast__text {
+  flex: 1;
+  font-weight: 600;
+}
+
+.toast__action {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: rgb(255 255 255 / 14%);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toast--leaving {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* 6. Verbindungsstatus --------------------------------------------------- */
+.conn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.conn__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-warning);
+}
+
+.conn[data-status='online'] .conn__dot {
+  background: var(--color-success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-success) 25%, transparent);
+}
+
+.conn[data-status='offline'] {
+  color: var(--color-danger);
+}
+
+.conn[data-status='offline'] .conn__dot {
+  background: var(--color-danger);
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

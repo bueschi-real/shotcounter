@@ -1,0 +1,6 @@
+node_modules/
+data/*
+!data/.gitkeep
+*.tar
+.DS_Store
+npm-debug.log*

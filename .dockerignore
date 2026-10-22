@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+data/*
+!data/.gitkeep
+.git
+.gitignore
+.vscode
+test
+*.tar
+*.md
+!README.md

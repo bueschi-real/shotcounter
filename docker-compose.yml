@@ -1,0 +1,32 @@
+# =============================================================================
+# Variante A: Das NAS (bzw. euer Rechner) baut das Image selbst aus dem Code.
+#
+#   Lokal testen:   docker compose up --build
+#   Auf dem NAS:    Container Manager -> Projekt -> Erstellen -> diesen Ordner wählen
+#
+# Erreichbar unter:
+#   Erfassung:  http://<IP>:8080/
+#   Rangliste:  http://<IP>:8080/rangliste
+# =============================================================================
+services:
+  rangliste:
+    build: .
+    image: rangliste:latest
+    container_name: rangliste
+    restart: unless-stopped
+    ports:
+      # links: Port auf dem NAS (frei wählbar), rechts: Port im Container
+      - "8080:3000"
+    volumes:
+      # Datenbank liegt im Unterordner ./data und bleibt bei Updates erhalten
+      - ./data:/app/data
+    environment:
+      # PIN für die Erfassung. Leer lassen = kein Schutz. UNBEDINGT ÄNDERN!
+      ADMIN_PIN: "1234"
+      # Überschrift auf beiden Seiten
+      APP_TITLE: "Shotcounter"
+      # Zeitzone (für Logs)
+      TZ: "Europe/Zurich"
+      # Weitere Optionen (siehe README):
+      # MAX_NAME_LENGTH: "40"
+      # MAX_POINTS_PER_BOOKING: "1000"

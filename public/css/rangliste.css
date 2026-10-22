@@ -1,0 +1,199 @@
+/* ==========================================================================
+   rangliste.css: Vollbild-Anzeige für den Bildschirm
+   Schriftgrössen skalieren mit der Fenstergrösse (vmin), damit die Anzeige
+   auf jedem Bildschirm (Laptop bis TV) gut lesbar ist.
+   ========================================================================== */
+
+:root {
+  --gold: #facc15;
+  --silver: #cbd5e1;
+  --bronze: #d97706;
+  --row-gap: 1vmin;
+}
+
+.page-rangliste {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  padding: 3vmin 4vmin;
+  gap: 2.5vmin;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, color-mix(in srgb, var(--color-primary) 18%, transparent), transparent),
+    var(--color-bg);
+}
+
+.page-rangliste.hide-cursor,
+.page-rangliste.hide-cursor * {
+  cursor: none !important;
+}
+
+/* Kopfzeile ---------------------------------------------------------------- */
+.display-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vmin;
+  color: var(--color-shc);
+}
+
+.display-header h1 {
+  font-size: clamp(28px, 6vmin, 96px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.display-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 3vmin;
+}
+
+.display-header .conn {
+  font-size: clamp(12px, 1.6vmin, 22px);
+}
+
+.clock {
+  font-size: clamp(20px, 4vmin, 64px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+/* Liste -------------------------------------------------------------------- */
+.board-wrap {
+  flex: 1;
+  min-height: 0; /* wichtig, damit die Liste die Höhe nicht sprengt */
+  position: relative;
+}
+
+.board {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  /* --columns und --rows werden per JavaScript gesetzt */
+  grid-template-columns: repeat(var(--columns, 1), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows, 10), minmax(0, 1fr));
+  grid-auto-flow: column;
+  column-gap: 3vmin;
+  row-gap: var(--row-gap);
+  align-content: start;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 2vmin;
+  min-height: 0;
+  padding: 0 2.5vmin;
+  border-radius: 1.5vmin;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: var(--row-font, clamp(16px, 3.4vmin, 56px)); /* --row-font setzt JavaScript */
+  overflow: hidden;
+  will-change: transform;
+}
+
+.row__rank {
+  display: grid;
+  place-items: center;
+  width: 1.8em;
+  height: 1.8em;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  font-weight: 800;
+  font-size: 0.8em;
+  font-variant-numeric: tabular-nums;
+}
+
+.row__name {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row__score {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  min-width: 3ch;
+  color: var(--color-shc);
+}
+
+.row__score.is-bumped {
+  animation: score-bump 0.6s ease-out;
+}
+
+@keyframes score-bump {
+  40% {
+    transform: scale(1.25);
+    color: var(--color-primary);
+  }
+}
+
+/* "+5"-Anzeige neben der Punktzahl */
+.row__delta {
+  font-size: 0.7em;
+  font-weight: 800;
+  color: var(--color-success);
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.row__delta.is-negative {
+  color: var(--color-minus);
+}
+
+.row__delta.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Hervorhebung der zuletzt geänderten Gruppe */
+.row.is-highlighted {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.4vmin color-mix(in srgb, var(--color-primary) 45%, transparent);
+  animation: row-flash 1.2s ease-out;
+}
+
+@keyframes row-flash {
+  0% {
+    background: color-mix(in srgb, var(--color-primary) 40%, var(--color-surface));
+  }
+}
+
+/* Podest: Gold, Silber, Bronze */
+.row[data-podium='1'] {
+  border-color: color-mix(in srgb, var(--gold) 60%, var(--color-border));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 18%, var(--color-surface)), var(--color-surface) 60%);
+}
+
+.row[data-podium='1'] .row__rank {
+  background: var(--gold);
+  color: #3b2f00;
+}
+
+.row[data-podium='2'] .row__rank {
+  background: var(--silver);
+  color: #1e293b;
+}
+
+.row[data-podium='3'] .row__rank {
+  background: var(--bronze);
+  color: #2a1600;
+}
+
+.board__empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(20px, 4vmin, 56px);
+  color: var(--color-text-muted);
+}

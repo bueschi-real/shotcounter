@@ -1,0 +1,25 @@
+# =============================================================================
+# Variante B: Fertiges Image verwenden (z. B. als .tar importiert).
+#
+# Image bauen (auf dem eigenen Rechner), für ARM-NAS:
+#   docker buildx build --platform linux/arm64 -t rangliste:1.0 \
+#     -o type=docker,dest=rangliste-arm64.tar .
+# Für Intel/AMD-NAS:
+#   docker build -t rangliste:1.0 . && docker save rangliste:1.0 -o rangliste-amd64.tar
+#
+# Auf dem NAS: .tar unter "Image -> Importieren" laden, diese Datei als
+# docker-compose.yml in den Projektordner legen, Projekt erstellen.
+# =============================================================================
+services:
+  rangliste:
+    image: rangliste:1.0
+    container_name: rangliste
+    restart: unless-stopped
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      ADMIN_PIN: "1234"
+      APP_TITLE: "Rangliste"
+      TZ: "Europe/Zurich"

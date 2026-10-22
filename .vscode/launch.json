@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Rangliste starten (Debug)",
+      "program": "${workspaceFolder}/server.js",
+      "runtimeArgs": ["--disable-warning=ExperimentalWarning", "--watch"],
+      "env": { "ADMIN_PIN": "1234" },
+      "console": "integratedTerminal"
+    }
+  ]
+}
