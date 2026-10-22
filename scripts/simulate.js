@@ -26,7 +26,7 @@ const BASE_URL = (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/
 const PIN = process.env.ADMIN_PIN || '1234';
 
 /** Mögliche Werte pro Buchung (häufigere Werte mehrfach aufgeführt). */
-const PUNKTE = [1, 3, 4, 5, 5, 10, 10, -1];
+const PUNKTE = [1, 3, 4, 5, 5, 10, 15];
 
 /**
  * Liest eine Zahl-Option aus den Kommandozeilen-Argumenten.
