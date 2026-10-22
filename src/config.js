@@ -51,10 +51,10 @@ const config = Object.freeze({
    * PIN zum Schutz der Erfassung (alle schreibenden Aktionen).
    * Leer lassen, um den Schutz zu deaktivieren.
    */
-  adminPin: (process.env.ADMIN_PIN || '').trim(),
+  adminPin: (process.env.ADMIN_PIN || 'admin').trim(),
 
   /** Titel, der auf beiden Seiten angezeigt wird. */
-  appTitle: process.env.APP_TITLE || 'Rangliste',
+  appTitle: process.env.APP_TITLE || 'Sprützerball Shotcounter',
 
   /** Maximale Länge eines Gruppennamens. */
   maxNameLength: readInt('MAX_NAME_LENGTH', 40),
