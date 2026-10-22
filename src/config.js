@@ -51,7 +51,7 @@ const config = Object.freeze({
    * PIN zum Schutz der Erfassung (alle schreibenden Aktionen).
    * Leer lassen, um den Schutz zu deaktivieren.
    */
-  adminPin: (process.env.ADMIN_PIN || 'admin').trim(),
+  adminPin: (process.env.ADMIN_PIN || '').trim(),
 
   /** Titel, der auf beiden Seiten angezeigt wird. */
   appTitle: process.env.APP_TITLE || 'Sprützerball Shotcounter',
