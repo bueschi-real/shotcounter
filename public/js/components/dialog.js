@@ -302,23 +302,23 @@ export function pointsDialog({ groupName, presets = [], max = 1000 }) {
   render();
 
   return openDialog({
-    title: `Punkte für «${groupName}»`,
+    title: `Shots für «${groupName}»`,
     className: 'dialog--keypad',
     content: el('div', {}, display, presetRow, keypad, hint),
     actions: [
       { label: 'Abbrechen', value: null },
       {
-        label: 'Buchen',
+        label: 'Speichern',
         variant: 'primary',
         isDefault: true,
         onClick: () => {
           const value = currentValue();
           if (value === 0) {
-            hint.textContent = 'Bitte eine Punktzahl eingeben.';
+            hint.textContent = 'Bitte eine Anzahl eingeben.';
             return false;
           }
           if (Math.abs(value) > max) {
-            hint.textContent = `Maximal ±${max} Punkte pro Buchung.`;
+            hint.textContent = `Maximal ±${max} Shots pro Buchung.`;
             return false;
           }
           return value;

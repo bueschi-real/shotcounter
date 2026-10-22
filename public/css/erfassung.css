@@ -86,7 +86,7 @@
   border: none;
   border-radius: calc(var(--radius-md) - 4px);
   background: transparent;
-  color: var(--color-text-muted);
+  color: var(--color-text);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -94,7 +94,7 @@
 }
 
 .segmented button[aria-pressed='true'] {
-  background: var(--color-primary);
+  background: var(--color-shc);
   color: var(--color-on-primary);
 }
 
