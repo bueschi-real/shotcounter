@@ -7,7 +7,7 @@
  * wiederverwendet werden.
  */
 
-import { el, restartAnimation } from '../core/dom.js';
+import { el, playAnimationOnce } from '../core/dom.js';
 import { formatPoints, formatSigned } from '../core/format.js';
 
 /**
@@ -94,7 +94,7 @@ export function createGroupCard(group, { quickPoints, handlers }) {
     nameEl.textContent = next.name;
     scoreEl.textContent = formatPoints(next.score);
     rankEl.textContent = `Rang ${next.rank}`;
-    if (current && current.score !== next.score) restartAnimation(scoreEl, 'is-bumped');
+    if (current && current.score !== next.score) playAnimationOnce(scoreEl, 'is-bumped');
     current = { ...next };
   }
 

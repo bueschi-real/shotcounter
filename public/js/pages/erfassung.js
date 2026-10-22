@@ -14,7 +14,7 @@
 
 import { api } from '../core/api.js';
 import { connectLive } from '../core/liveConnection.js';
-import { $, restartAnimation } from '../core/dom.js';
+import { $, playAnimationOnce } from '../core/dom.js';
 import { formatSigned, pointsLabel } from '../core/format.js';
 import { readValue, writeValue, removeValue } from '../core/storage.js';
 import { ERFASSUNG, STORAGE_KEYS } from '../settings.js';
@@ -340,7 +340,7 @@ function render() {
   if (state.focusGroupId && cards.has(state.focusGroupId)) {
     const element = cards.get(state.focusGroupId).element;
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    restartAnimation(element, 'is-new');
+    playAnimationOnce(element, 'is-new');
     state.focusGroupId = null;
   }
 }
