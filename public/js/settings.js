@@ -18,6 +18,9 @@ export const ERFASSUNG = Object.freeze({
 
   /** Anzeigedauer der Rückmeldungen unten am Bildschirm (ms). */
   toastDurationMs: 4000,
+
+  /** Anzeigedauer der Meldung nach einer Punktebuchung, mit "Rückgängig" (ms). */
+  bookingToastDurationMs: 4000,
 });
 
 /** Einstellungen für die Ranglisten-Anzeige (Bildschirm). */

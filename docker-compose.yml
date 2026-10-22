@@ -21,10 +21,10 @@ services:
       # Datenbank liegt im Unterordner ./data und bleibt bei Updates erhalten
       - ./data:/app/data
     environment:
-      # PIN für die Erfassung. Leer lassen = kein Schutz. UNBEDINGT ÄNDERN!
-      ADMIN_PIN: "1234"
+      # PIN für die Erfassung. Leer lassen = kein Schutz
+      # ADMIN_PIN: "1234"
       # Überschrift auf beiden Seiten
-      APP_TITLE: "Shotcounter"
+      # APP_TITLE: "Sprützerball Shotcounter"
       # Zeitzone (für Logs)
       TZ: "Europe/Zurich"
       # Weitere Optionen (siehe README):

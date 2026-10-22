@@ -27,11 +27,11 @@ export function formatSigned(points) {
 }
 
 /**
- * Liefert "Punkt" oder "Punkte" passend zur Zahl.
+ * Liefert "Shot" oder "Shots" passend zur Zahl.
  *
  * @param {number} points
  * @returns {string}
  */
 export function pointsLabel(points) {
-  return Math.abs(points) === 1 ? 'Punkt' : 'Punkte';
+  return Math.abs(points) === 1 ? 'Shot' : 'Shots';
 }

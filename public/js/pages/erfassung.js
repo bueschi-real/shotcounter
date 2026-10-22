@@ -159,9 +159,9 @@ async function handleCreate(event) {
 async function bookPoints(groupId, points) {
   const group = await runAction(() => api.addPoints(groupId, points));
   if (!group) return;
-  showToast(`${formatSigned(points)} ${pointsLabel(points)} für «${group.name}»`, {
+  showToast(`${formatSigned(points)} ${pointsLabel(points)} für '${group.name}'`, {
     type: 'success',
-    durationMs: ERFASSUNG.toastDurationMs,
+    durationMs: ERFASSUNG.bookingToastDurationMs,
     action: { label: 'Rückgängig', onClick: undoLast },
   });
 }
@@ -206,14 +206,14 @@ async function editGroup(groupId) {
       danger: true,
     });
     if (ok && (await runAction(() => api.deleteGroup(groupId)))) {
-      showToast(`«${group.name}» gelöscht`, { durationMs: ERFASSUNG.toastDurationMs });
+      showToast(`'${group.name}' gelöscht`, { durationMs: ERFASSUNG.toastDurationMs });
     }
     return;
   }
 
   if (typeof result === 'string' && result !== group.name) {
     const renamed = await runAction(() => api.renameGroup(groupId, result));
-    if (renamed) showToast(`Umbenannt in «${renamed.name}»`, { type: 'success' });
+    if (renamed) showToast(`Umbenannt in '${renamed.name}'`, { type: 'success' });
   }
 }
 
@@ -221,7 +221,7 @@ async function editGroup(groupId) {
 async function undoLast() {
   const result = await runAction(() => api.undo());
   if (!result) return;
-  showToast(`Rückgängig: ${formatSigned(-result.points)} bei «${result.group.name}»`, {
+  showToast(`Rückgängig: ${formatSigned(-result.points)} ${pointsLabel(result.points)} bei '${result.group.name}'`, {
     durationMs: ERFASSUNG.toastDurationMs,
   });
 }
