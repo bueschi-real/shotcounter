@@ -29,8 +29,7 @@ Diese Anleitung führt Schritt für Schritt von einem frischen Windows-Rechner b
     - [Funktionsprüfung](#funktionsprüfung)
   - [8. Mit Tablet oder zweitem Gerät verbinden](#8-mit-tablet-oder-zweitem-gerät-verbinden)
   - [9. Neue Version installieren](#9-neue-version-installieren)
-  - [10. Optional: Visual Studio Code](#10-optional-visual-studio-code)
-  - [11. Fehlerbehebung](#11-fehlerbehebung)
+  - [10. Fehlerbehebung](#11-fehlerbehebung)
 
 ---
 
@@ -210,25 +209,7 @@ Erreicht das Tablet die Seite nicht:
 
 ---
 
-## 10. Optional: Visual Studio Code
-
-Für die Nutzung nicht nötig, aber praktisch, um Dateien wie `start.cmd` zu bearbeiten oder die Datenbank anzusehen.
-
-1. Auf https://code.visualstudio.com den **User Installer** herunterladen (funktioniert ohne Admin-Rechte) und installieren.
-2. In VS Code: **Datei → Ordner öffnen** → Anwendungsordner wählen.
-3. **Terminal → Neues Terminal** öffnet ein Terminal bereits im Anwendungsordner. Dort funktionieren alle Befehle dieser Anleitung.
-   Empfehlung: Über den Pfeil neben dem **+** im Terminal-Bereich **Command Prompt** wählen, dann gelten die Befehle exakt wie hier beschrieben.
-
-Nützliche Erweiterung (Seitenleiste → **Erweiterungen**, `Ctrl+Shift+X`):
-
-| Erweiterung | Wozu |
-|---|---|
-| **SQLite Viewer** (`qwtel.sqlite-viewer`) | Gespeicherte Gruppen und Punkte in `data\rangliste.db` ansehen |
-| German Language Pack (`MS-CEINTL.vscode-language-pack-de`) | VS Code auf Deutsch |
-
----
-
-## 11. Fehlerbehebung
+## 10. Fehlerbehebung
 
 | Problem | Ursache / Lösung |
 |---|---|
