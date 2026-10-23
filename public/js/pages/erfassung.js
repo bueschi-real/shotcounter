@@ -52,7 +52,6 @@ const dom = {
   createInput: $('#create-name'),
   search: $('#search'),
   sortButtons: [...document.querySelectorAll('[data-sort]')],
-  undoButton: $('#undo-btn'),
   menuButton: $('#menu-btn'),
   cards: $('#cards'),
   empty: $('#empty'),
@@ -233,6 +232,7 @@ async function openMenu() {
     className: 'dialog--menu',
     actions: [
       { label: 'Rangliste in neuem Fenster öffnen', value: 'open' },
+      { label: 'Letzte Aktion zurücksetzen', value: 'reset'},
       { label: 'Alle Gruppen löschen', variant: 'danger', value: 'clear' },
       { label: 'Schliessen', value: null },
     ],
@@ -240,6 +240,8 @@ async function openMenu() {
 
   if (choice === 'open') {
     window.open('/rangliste', '_blank');
+  } else if (choice === 'reset') {
+    undoLast();
   } else if (choice === 'clear') {
     const ok = await confirmDialog({
       title: 'Alle Gruppen löschen?',
@@ -331,7 +333,6 @@ function render() {
   dom.empty.hidden = groups.length > 0;
   dom.empty.textContent = total === 0 ? 'Noch keine Gruppen. Lege oben die erste an.' : 'Keine Gruppe passt zur Suche.';
   dom.count.textContent = `${total} ${total === 1 ? 'Gruppe' : 'Gruppen'}`;
-  dom.undoButton.disabled = !state.snapshot.canUndo;
   for (const button of dom.sortButtons) {
     button.setAttribute('aria-pressed', String(button.dataset.sort === state.sort));
   }
@@ -384,7 +385,6 @@ async function init() {
     render();
   });
   for (const button of dom.sortButtons) button.addEventListener('click', () => setSort(button.dataset.sort));
-  dom.undoButton.addEventListener('click', undoLast);
   dom.menuButton.addEventListener('click', openMenu);
 
   render();
