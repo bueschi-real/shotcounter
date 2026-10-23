@@ -36,7 +36,8 @@ Live-Rangliste für den Gastrobetrieb: Gruppen werden auf einem **Tablet erfasst
 - **✎** öffnet den Dialog zum Umbenennen oder Löschen.
 - Suche, Sortierung (A–Z / Punkte / Neueste).
 - Menü: Rangliste öffnen, **Neue Runde** (alle Punkte auf 0), alle Gruppen löschen.
-- PIN-Schutz (optional), helles/dunkles Design nach Systemeinstellung.
+- PIN-Schutz (optional): Standardmässig nur für kritische Aktionen wie «Alle Gruppen löschen», dort jedes Mal neu. Mit `PIN_MODE=all` zusätzlich beim Start der Erfassung für alle Änderungen.
+- Helles/dunkles Design nach Systemeinstellung.
 - Mehrere Tablets gleichzeitig möglich, alle sehen live denselben Stand.
 
 **Rangliste (Bildschirm)**
@@ -221,7 +222,8 @@ Aktionen ändern die Anzeige **nicht direkt**. Sie gehen an den Server, und die 
 
 | Variable | Standard | Bedeutung |
 |---|---|---|
-| `ADMIN_PIN` | *(leer)* | PIN für die Erfassung. Leer = kein Schutz |
+| `ADMIN_PIN` | *(leer)* | Admin-PIN. Leer = kein PIN-Schutz |
+| `PIN_MODE` | `critical` | `critical`: PIN nur bei kritischen Aktionen (z. B. alle Gruppen löschen), jedes Mal neu. `all`: zusätzlich PIN beim Start der Erfassung, schützt alle Änderungen |
 | `APP_TITLE` | `Rangliste` | Überschrift auf beiden Seiten |
 | `PORT` | `3000` | Port im Container (nach aussen: `ports` in Compose) |
 | `DATA_DIR` | `./data` bzw. `/app/data` | Ordner der Datenbank |
@@ -253,11 +255,11 @@ Alle Farben stehen als Variablen oben in `public/css/base.css` (`--color-primary
 
 ## 6. REST-API
 
-Alle Antworten im JSON-Format. Schreibende Aufrufe brauchen den Header `X-Admin-Pin`, falls eine PIN gesetzt ist.
+Alle Antworten im JSON-Format. Ist ein PIN gesetzt, brauchen kritische Aufrufe (Spalte PIN ✔✔) immer den Header `X-Admin-Pin`. Die übrigen schreibenden Aufrufe (✔) brauchen ihn nur bei `PIN_MODE=all`.
 
 | Methode | Pfad | Body | PIN | Antwort |
 |---|---|---|---|---|
-| GET | `/api/config` | | – | Titel, PIN nötig?, Grenzwerte |
+| GET | `/api/config` | | – | Titel, PIN nötig?, PIN-Modus, Grenzwerte |
 | POST | `/api/auth/check` | | Header | `{ ok: true }` oder 401 |
 | GET | `/api/events` | | – | Live-Stream (SSE), Ereignis `snapshot` |
 | GET | `/api/health` | | – | Status für Docker |
@@ -268,7 +270,7 @@ Alle Antworten im JSON-Format. Schreibende Aufrufe brauchen den Header `X-Admin-
 | POST | `/api/groups/:id/points` | `{ "points": 5 }` | ✔ | Gruppe mit neuem Stand |
 | POST | `/api/groups/undo` | | ✔ | `{ group, points }` |
 | POST | `/api/groups/reset` | | ✔ | 204 (alle Punkte = 0) |
-| DELETE | `/api/groups` | | ✔ | 204 (alles löschen) |
+| DELETE | `/api/groups` | | ✔✔ | 204 (alles löschen) |
 
 **Snapshot:**
 ```json
@@ -327,6 +329,31 @@ Bestehende Dateien bleiben unverändert.
 3. Optional: eigenes CSS in `public/css/siegerehrung.css`.
 
 Erreichbar ist die Seite dann unter `/siegerehrung` (ohne `.html`).
+
+### Weitere kritische Aktion mit PIN schützen (Beispiel: einzelne Gruppe löschen)
+
+Kritische Aktionen verlangen die PIN jedes Mal neu, unabhängig von `PIN_MODE`. «Alle Gruppen löschen» dient als Vorlage.
+
+1. **Backend** (`src/routes/groupRoutes.js`): `requireCriticalPin` in die Route einsetzen und die Tabelle oben in der Datei anpassen:
+   ```js
+   router.delete('/:id', requireCriticalPin, (req, res) => { ... });
+   ```
+2. **API** (`public/js/core/api.js`): Parameter `pin` ergänzen, wie bei `deleteAll`:
+   ```js
+   deleteGroup: (id, pin) => request('DELETE', `/api/groups/${id}`, undefined, { pin }),
+   ```
+3. **Seite** (`public/js/pages/erfassung.js`): die Aktion über `runCriticalAction()` auslösen:
+   ```js
+   const result = await runCriticalAction({
+      title: 'Gruppe löschen?',
+      message: 'Die Gruppe wird endgültig gelöscht.',
+      confirmLabel: 'Löschen',
+      action: (pin) => api.deleteGroup(groupId, pin),
+   });
+   if (result !== undefined) showToast('Gruppe gelöscht');
+   ```
+   `runCriticalAction()` zeigt bei gesetzter PIN den PIN-Dialog mit «Abbrechen», sonst eine normale Sicherheitsabfrage.
+4. Optional einen Test ergänzen (Vorlage in `test/app.test.js`: «alle Gruppen löschen verlangt die PIN»).
 
 ### Auf Live-Änderungen reagieren (Beispiel: Logging)
 

@@ -49,6 +49,7 @@ export const RANGLISTE = Object.freeze({
 
 /** Schlüssel für Werte, die im Browser gespeichert werden (localStorage). */
 export const STORAGE_KEYS = Object.freeze({
+  /** Gespeicherte PIN, nur bei PIN_MODE=all verwendet. */
   pin: 'rangliste.pin',
   sort: 'rangliste.sort',
 });

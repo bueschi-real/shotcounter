@@ -24,7 +24,7 @@ const { createGroupRepository } = require('./repositories/groupRepository');
 const { createEventBus } = require('./services/eventBus');
 const { createGroupService } = require('./services/groupService');
 const { createSseHub } = require('./realtime/sseHub');
-const { requirePin } = require('./middleware/requirePin');
+const { createPinGuards } = require('./middleware/requirePin');
 const { errorHandler, apiNotFound } = require('./middleware/errorHandler');
 const { createGroupRoutes } = require('./routes/groupRoutes');
 const { createSystemRoutes } = require('./routes/systemRoutes');
@@ -64,7 +64,7 @@ function createApp(config) {
 
   // API
   app.use('/api', createSystemRoutes({ config, sseHub }));
-  app.use('/api/groups', createGroupRoutes({ groupService, requirePin: requirePin(config.adminPin) }));
+  app.use('/api/groups', createGroupRoutes({ groupService, ...createPinGuards(config) }));
   app.use('/api', apiNotFound);
 
   // Frontend: Kurze URLs ohne ".html" (z. B. /rangliste statt /rangliste.html)

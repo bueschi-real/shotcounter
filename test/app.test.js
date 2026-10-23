@@ -15,8 +15,42 @@ const baseConfig = require('../src/config');
 const { createApp } = require('../src/app');
 const { rankGroups } = require('../src/services/groupService');
 
-/** Testkonfiguration: Datenbank im Speicher, PIN "9999". */
-const config = { ...baseConfig, dbFile: ':memory:', adminPin: '9999', heartbeatMs: 60000 };
+/** Testkonfiguration: Datenbank im Speicher, PIN "9999", PIN schützt alle Änderungen. */
+const config = { ...baseConfig, dbFile: ':memory:', adminPin: '9999', pinMode: 'all', heartbeatMs: 60000 };
+
+/**
+ * Startet einen Testserver mit eigener Konfiguration.
+ *
+ * @param {object} overrides Abweichende Einstellungen, z. B. `{ pinMode: 'critical' }`.
+ * @returns {Promise<{
+ *   call: (method: string, path: string, body?: object, pin?: string|null) => Promise<{status: number, data: any}>,
+ *   stop: () => void
+ * }>}
+ */
+async function startTestServer(overrides) {
+  const created = createApp({ ...config, ...overrides });
+  const server = await new Promise((resolve) => {
+    const s = created.app.listen(0, () => resolve(s));
+  });
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
+
+  /** API-Aufruf. `pin = null` schickt keine PIN mit. */
+  async function call(method, path, body, pin = null) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (pin) headers['X-Admin-Pin'] = pin;
+    const res = await fetch(baseUrl + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    const data = res.status === 204 ? null : await res.json();
+    return { status: res.status, data };
+  }
+
+  return {
+    call,
+    stop() {
+      created.shutdown();
+      server.close();
+    },
+  };
+}
 
 describe('rankGroups', () => {
   test('sortiert nach Punkten und vergibt bei Gleichstand denselben Rang', () => {
@@ -38,7 +72,7 @@ describe('rankGroups', () => {
   });
 });
 
-describe('REST-API', () => {
+describe('REST-API (PIN_MODE=all)', () => {
   let server;
   let baseUrl;
   let shutdown;
@@ -160,5 +194,42 @@ describe('REST-API', () => {
   test('Frontend-Seiten werden ausgeliefert', async () => {
     assert.equal((await fetch(`${baseUrl}/`)).status, 200);
     assert.equal((await fetch(`${baseUrl}/rangliste`)).status, 200);
+  });
+
+  test('Konfiguration meldet den PIN-Modus', async () => {
+  const res = await call('GET', '/api/config', undefined, null);
+  assert.equal(res.data.pinMode, 'all');
+  assert.equal(res.data.pinRequired, true);
+  });
+});
+
+describe('REST-API (PIN_MODE=critical)', () => {
+  let srv;
+
+  before(async () => {
+    srv = await startTestServer({ pinMode: 'critical' });
+  });
+
+  after(() => srv.stop());
+
+  test('Konfiguration meldet den PIN-Modus', async () => {
+    assert.equal((await srv.call('GET', '/api/config')).data.pinMode, 'critical');
+  });
+
+  test('normale Aktionen gehen ohne PIN', async () => {
+    const res = await srv.call('POST', '/api/groups', { name: 'Ohne PIN' });
+    assert.equal(res.status, 201);
+    assert.equal((await srv.call('POST', `/api/groups/${res.data.id}/points`, { points: 1 })).status, 200);
+    assert.equal((await srv.call('POST', '/api/groups/undo')).status, 200);
+    assert.equal((await srv.call('PATCH', `/api/groups/${res.data.id}`, { name: 'Umbenannt' })).status, 200);
+  });
+
+  test('alle Gruppen löschen verlangt die PIN', async () => {
+    assert.equal((await srv.call('DELETE', '/api/groups')).status, 401);
+    assert.equal((await srv.call('DELETE', '/api/groups', undefined, '0000')).status, 401);
+    assert.ok((await srv.call('GET', '/api/groups')).data.groups.length > 0, 'ohne gültige PIN wird nichts gelöscht');
+
+    assert.equal((await srv.call('DELETE', '/api/groups', undefined, '9999')).status, 204);
+    assert.deepEqual((await srv.call('GET', '/api/groups')).data.groups, []);
   });
 });

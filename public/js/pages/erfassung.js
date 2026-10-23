@@ -88,12 +88,22 @@ async function verifyPin(pin) {
 }
 
 /**
- * Stellt sicher, dass eine gültige PIN gespeichert ist (falls nötig).
+ * Gibt an, ob die PIN beim Start verlangt wird und alle Änderungen schützt
+ * (PIN_MODE=all, frühere Funktion). Im Standardmodus ('critical') wird die
+ * PIN nur bei kritischen Aktionen abgefragt.
+ * @returns {boolean}
+ */
+function isPinRequiredForAll() {
+  return Boolean(state.config?.pinRequired && state.config.pinMode === 'all');
+}
+
+/**
+ * Stellt sicher, dass eine gültige PIN gespeichert ist (nur bei PIN_MODE=all).
  * Fragt sie andernfalls per Dialog ab.
  * @returns {Promise<void>}
  */
 async function ensurePin() {
-  if (!state.config?.pinRequired) return;
+  if (!isPinRequiredForAll()) return;
   const stored = readValue(STORAGE_KEYS.pin);
   if (stored && (await verifyPin(stored))) return;
   removeValue(STORAGE_KEYS.pin);
@@ -103,7 +113,7 @@ async function ensurePin() {
 
 /**
  * Führt eine Server-Aktion aus und behandelt Fehler einheitlich:
- *  - PIN ungültig → PIN neu abfragen und Aktion einmal wiederholen,
+ *  - PIN ungültig und PIN_MODE=all → PIN neu abfragen und Aktion wiederholen,
  *  - andere Fehler → als rote Meldung anzeigen.
  *
  * @template T
@@ -114,7 +124,7 @@ async function runAction(action) {
   try {
     return await action();
   } catch (err) {
-    if (err.isUnauthorized) {
+    if (err.isUnauthorized && isPinRequiredForAll()) {
       removeValue(STORAGE_KEYS.pin);
       await ensurePin();
       return runAction(action);
@@ -122,6 +132,71 @@ async function runAction(action) {
     showToast(err.message, { type: 'error', durationMs: 5000 });
     return undefined;
   }
+}
+
+/**
+ * Sicherheitsabfrage vor einer kritischen Aktion.
+ *
+ * Ist eine PIN konfiguriert, muss sie bei JEDEM Aufruf neu eingegeben werden,
+ * unabhängig vom PIN-Modus und davon, ob das Tablet schon entsperrt ist. Ohne
+ * konfigurierte PIN erscheint eine normale Sicherheitsabfrage. In beiden
+ * Fällen kann abgebrochen werden.
+ *
+ * Wird meist nicht direkt aufgerufen, sondern über `runCriticalAction()`.
+ *
+ * @param {object} options
+ * @param {string} options.title         Überschrift des Dialogs.
+ * @param {string} options.message       Warnung bzw. Erklärung.
+ * @param {string} options.confirmLabel  Beschriftung der (roten) Bestätigungs-Schaltfläche.
+ * @returns {Promise<string|null>} Die eingegebene PIN (`''`, wenn keine PIN
+ *          konfiguriert ist), oder `null`, wenn abgebrochen wurde.
+ */
+async function confirmWithPin({ title, message, confirmLabel }) {
+  if (!state.config.pinRequired) {
+    const ok = await confirmDialog({ title, message, confirmLabel, danger: true });
+    return ok ? '' : null;
+  }
+  return pinDialog(verifyPin, {
+    title,
+    message: `${message} Zur Bestätigung den Admin-PIN eingeben.`,
+    confirmLabel,
+    danger: true,
+    cancellable: true,
+  });
+}
+
+/**
+ * Führt eine kritische Aktion aus: zuerst Sicherheitsabfrage mit PIN
+ * (`confirmWithPin()`), dann die Aktion mit der eingegebenen PIN.
+ * Bei "Abbrechen" passiert nichts, die Erfassung läuft normal weiter.
+ *
+ * Neue kritische Aktion hinzufügen:
+ *   1. Backend: `requireCriticalPin` in die Route einsetzen
+ *      (src/routes/groupRoutes.js).
+ *   2. API: Methode mit Parameter `pin` ergänzen (public/js/core/api.js,
+ *      Vorlage: `deleteAll`).
+ *   3. Hier aufrufen, z. B.:
+ *        const result = await runCriticalAction({
+ *          title: 'Gruppe löschen?',
+ *          message: 'Die Gruppe wird endgültig gelöscht.',
+ *          confirmLabel: 'Löschen',
+ *          action: (pin) => api.deleteGroup(groupId, pin),
+ *        });
+ *        if (result !== undefined) showToast('Gelöscht');
+ *
+ * @template T
+ * @param {object} options
+ * @param {string} options.title         Überschrift des Dialogs.
+ * @param {string} options.message       Warnung bzw. Erklärung.
+ * @param {string} options.confirmLabel  Beschriftung der Bestätigungs-Schaltfläche.
+ * @param {(pin: string) => Promise<T>} options.action  Server-Aufruf, erhält die eingegebene PIN.
+ * @returns {Promise<T|undefined>} Ergebnis der Aktion, oder `undefined`, wenn
+ *          abgebrochen wurde oder ein Fehler auftrat.
+ */
+async function runCriticalAction({ title, message, confirmLabel, action }) {
+  const pin = await confirmWithPin({ title, message, confirmLabel });
+  if (pin === null) return undefined; // abgebrochen
+  return runAction(() => action(pin));
 }
 
 // ---------------------------------------------------------------------------
@@ -248,46 +323,19 @@ async function openMenu() {
 }
 
 /**
- * Löscht alle Gruppen nach einer Sicherheitsabfrage.
- *
- * Ist eine PIN konfiguriert, muss sie hier erneut eingegeben werden, auch
- * wenn das Tablet bereits entsperrt ist. "Abbrechen" schliesst den Dialog,
- * ohne etwas zu ändern. Die Erfassung bleibt entsperrt und kann normal
- * weiter verwendet werden.
- *
- * Ohne konfigurierte PIN genügt eine normale Bestätigung.
+ * Löscht alle Gruppen. Kritische Aktion: verlangt jedes Mal die PIN
+ * (siehe `runCriticalAction()`).
  *
  * @returns {Promise<void>}
  */
 async function deleteAllGroups() {
-  const title = 'Alle Gruppen löschen?';
-  const warning = 'Alle Gruppen und Punkte werden endgültig gelöscht.';
-
-  if (!state.config.pinRequired) {
-    const ok = await confirmDialog({ title, message: warning, confirmLabel: 'Alles löschen', danger: true });
-    if (ok && (await runAction(() => api.deleteAll())) !== undefined) {
-      showToast('Alle Gruppen gelöscht');
-    }
-    return;
-  }
-
-  const pin = await pinDialog(verifyPin, {
-    title,
-    message: `${warning} Zur Bestätigung den Admin-PIN eingeben.`,
+  const result = await runCriticalAction({
+    title: 'Alle Gruppen löschen?',
+    message: 'Alle Gruppen und Punkte werden endgültig gelöscht.',
     confirmLabel: 'Alles löschen',
-    danger: true,
-    cancellable: true,
+    action: (pin) => api.deleteAll(pin),
   });
-  if (pin === null) return; // abgebrochen: nichts passiert, Erfassung läuft weiter
-
-  // Bewusst NICHT über runAction(): Bei einem Fehler soll die gespeicherte
-  // PIN des Tablets erhalten bleiben und keine Neuanmeldung ausgelöst werden.
-  try {
-    await api.deleteAll(pin);
-    showToast('Alle Gruppen gelöscht');
-  } catch (err) {
-    showToast(err.message, { type: 'error', durationMs: 5000 });
-  }
+  if (result !== undefined) showToast('Alle Gruppen gelöscht');
 }
 
 /**
@@ -386,14 +434,15 @@ function render() {
 // ---------------------------------------------------------------------------
 
 /**
- * Initialisiert die Seite: Konfiguration laden, PIN prüfen, Live-Verbindung
- * aufbauen und Bedienelemente verknüpfen.
+  * Initialisiert die Seite: Konfiguration laden, PIN prüfen (nur bei
+  * PIN_MODE=all), Live-Verbindung aufbauen und Bedienelemente verknüpfen.
  * @returns {Promise<void>}
  */
 async function init() {
   state.config = await api.getConfig().catch(() => ({
     appTitle: 'Rangliste',
     pinRequired: false,
+    pinMode: 'critical',
     maxNameLength: 40,
     maxPointsPerBooking: 1000,
   }));
@@ -401,6 +450,9 @@ async function init() {
   document.title = `Erfassung · ${state.config.appTitle}`;
   dom.createInput.maxLength = state.config.maxNameLength;
 
+  // Gespeicherte PIN nur im Modus 'all' behalten. Im Standardmodus wird sie
+  // nicht gebraucht und aus Sicherheitsgründen entfernt.
+  if (!isPinRequiredForAll()) removeValue(STORAGE_KEYS.pin);
   await ensurePin();
 
   const badge = createConnectionBadge();
