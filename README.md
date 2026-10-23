@@ -19,19 +19,18 @@ Diese Anleitung führt Schritt für Schritt von einem frischen Windows-Rechner b
     - [Variante B: Ohne Admin-Rechte](#variante-b-ohne-admin-rechte)
     - [Prüfen](#prüfen)
   - [3. Anwendung herunterladen](#3-anwendung-herunterladen)
-  - [4. Terminal im Anwendungsordner öffnen](#4-terminal-im-anwendungsordner-öffnen)
-  - [5. Installation abschliessen](#5-installation-abschliessen)
-  - [6. Einstellungen](#6-einstellungen)
-  - [7. Anwendung starten und beenden](#7-anwendung-starten-und-beenden)
+  - [4. Installation abschliessen](#4-installation-abschliessen)
+  - [5. Einstellungen](#5-einstellungen)
+  - [6. Anwendung starten und beenden](#6-anwendung-starten-und-beenden)
     - [Gespeicherte Daten](#gespeicherte-daten)
-  - [8. Testdaten und Vorführmodus (optional)](#8-testdaten-und-vorführmodus-optional)
+  - [7. Testdaten und Vorführmodus (optional)](#7-testdaten-und-vorführmodus-optional)
     - [Testdaten laden](#testdaten-laden)
     - [Vorführmodus (Simulation)](#vorführmodus-simulation)
     - [Funktionsprüfung](#funktionsprüfung)
-  - [9. Mit Tablet oder zweitem Gerät verbinden](#9-mit-tablet-oder-zweitem-gerät-verbinden)
-  - [10. Neue Version installieren](#10-neue-version-installieren)
-  - [11. Optional: Visual Studio Code](#11-optional-visual-studio-code)
-  - [12. Fehlerbehebung](#12-fehlerbehebung)
+  - [8. Mit Tablet oder zweitem Gerät verbinden](#8-mit-tablet-oder-zweitem-gerät-verbinden)
+  - [9. Neue Version installieren](#9-neue-version-installieren)
+  - [10. Optional: Visual Studio Code](#10-optional-visual-studio-code)
+  - [11. Fehlerbehebung](#11-fehlerbehebung)
 
 ---
 
@@ -107,22 +106,10 @@ Liegen diese Dateien in einem zusätzlichen Unterordner (z. B. `Rangliste\shotco
 
 ---
 
-## 4. Terminal im Anwendungsordner öffnen
+## 4. Installation abschliessen
 
-Alle weiteren Befehle werden in einem Terminal **im Anwendungsordner** ausgeführt:
+Terminal öffnen und im Projektordner ausführen:
 
-1. Im Windows Explorer den Anwendungsordner öffnen (der Ordner mit `start.cmd`).
-2. Oben in die **Adressleiste** klicken, `cmd` eintippen und **Enter** drücken.
-
-Alternativ:
-
-1. cmd starten
-2. `cd` zum Anwendungsordner
-
----
-## 5. Installation abschliessen
-
-Einmalig (und nach jedem Update, siehe Schritt 10) im Terminal:
 ```cmd
 npm install
 ```
@@ -132,7 +119,7 @@ Erfolgreich, wenn am Ende `added … packages` erscheint und keine Zeile mit `ER
 
 ---
 
-## 6. Einstellungen
+## 5. Einstellungen
 
 Die Anwendung wird über Umgebungsvariablen eingestellt.
 
@@ -148,7 +135,7 @@ Die Einstellungen müssen in der Startdatei `start.cmd` gesetzt werden vor dem S
 
 ---
 
-## 7. Anwendung starten und beenden
+## 6. Anwendung starten und beenden
 
 Ab jetzt genügt ein **Doppelklick auf `start.cmd`**. Beenden durch Schliessen des Fensters.
 
@@ -158,7 +145,7 @@ Alle Gruppen und Punkte werden in der Datei `data\rangliste.db` gespeichert und 
 
 ---
 
-## 8. Testdaten und Vorführmodus (optional)
+## 7. Testdaten und Vorführmodus (optional)
 
 Diese Befehle werden im Terminal im Anwendungsordner ausgeführt.
 
@@ -197,7 +184,7 @@ Prüft die Anwendung automatisch. Die Ausgabe muss mit `# fail 0` enden. Bestehe
 
 ---
 
-## 9. Mit Tablet oder zweitem Gerät verbinden
+## 8. Mit Tablet oder zweitem Gerät verbinden
 
 1. Tablet und Rechner müssen im **gleichen Netzwerk** (WLAN) sein.
 2. Auf dem Tablet die Adresse aus dem Terminal öffnen: `Im Netzwerk: http://192.168.x.x:3000/`
@@ -211,7 +198,7 @@ Erreicht das Tablet die Seite nicht:
 
 ---
 
-## 10. Neue Version installieren
+## 9. Neue Version installieren
 
 1. Anwendung beenden.
 2. Neue ZIP-Datei herunterladen und **in einen neuen Ordner** entpacken (siehe Schritt 3).
@@ -223,7 +210,7 @@ Erreicht das Tablet die Seite nicht:
 
 ---
 
-## 11. Optional: Visual Studio Code
+## 10. Optional: Visual Studio Code
 
 Für die Nutzung nicht nötig, aber praktisch, um Dateien wie `start.cmd` zu bearbeiten oder die Datenbank anzusehen.
 
@@ -241,7 +228,7 @@ Nützliche Erweiterung (Seitenleiste → **Erweiterungen**, `Ctrl+Shift+X`):
 
 ---
 
-## 12. Fehlerbehebung
+## 11. Fehlerbehebung
 
 | Problem | Ursache / Lösung |
 |---|---|
