@@ -15,7 +15,7 @@ Diese Anleitung führt Schritt für Schritt von einem frischen Windows-Rechner b
   - [Inhalt](#inhalt)
   - [1. Überblick: Was wird gebraucht?](#1-überblick-was-wird-gebraucht)
   - [2. Node.js installieren](#2-nodejs-installieren)
-    - [Variante A: Mit Admin-Rechten (einfachste Variante)](#variante-a-mit-admin-rechten-einfachste-variante)
+    - [Variante A: Mit Admin-Rechten](#variante-a-mit-admin-rechten)
     - [Variante B: Ohne Admin-Rechte](#variante-b-ohne-admin-rechte)
     - [Prüfen](#prüfen)
   - [3. Anwendung herunterladen](#3-anwendung-herunterladen)
@@ -51,7 +51,7 @@ Eine separate Datenbank, Git oder Docker sind **nicht** nötig.
 
 ## 2. Node.js installieren
 
-### Variante A: Mit Admin-Rechten (einfachste Variante)
+### Variante A: Mit Admin-Rechten
 
 Mit PowerShell oder cmd:
 ```cmd
@@ -97,11 +97,11 @@ Rangliste\
 ├── public\
 ├── scripts\
 ├── src\
-├── package.json
+├── start.cmd
 ├── server.js
 └── …
 ```
-Liegen diese Dateien in einem zusätzlichen Unterordner (z. B. `Rangliste\shotcounter-main\`), ist **dieser Unterordner** der Anwendungsordner. Er ist der Ordner, in dem `package.json` liegt.
+Liegen diese Dateien in einem zusätzlichen Unterordner (z. B. `Rangliste\shotcounter-main\`), ist **dieser Unterordner** der Anwendungsordner. Er ist der Ordner, in dem `start.cmd` liegt.
 
 > Die Anwendung **nicht** direkt im Ordner «Downloads» oder in einem OneDrive-Ordner betreiben. Dort können Dateien gesperrt oder synchronisiert werden, was die Datenbank stört.
 
@@ -111,8 +111,13 @@ Liegen diese Dateien in einem zusätzlichen Unterordner (z. B. `Rangliste\shotco
 
 Alle weiteren Befehle werden in einem Terminal **im Anwendungsordner** ausgeführt:
 
-1. Im Windows Explorer den Anwendungsordner öffnen (der Ordner mit `package.json`).
+1. Im Windows Explorer den Anwendungsordner öffnen (der Ordner mit `start.cmd`).
 2. Oben in die **Adressleiste** klicken, `cmd` eintippen und **Enter** drücken.
+
+Alternativ:
+
+1. cmd starten
+2. `cd` zum Anwendungsordner
 
 ---
 ## 5. Installation abschliessen
@@ -129,17 +134,17 @@ Erfolgreich, wenn am Ende `added … packages` erscheint und keine Zeile mit `ER
 
 ## 6. Einstellungen
 
-Die Anwendung wird über sogenannte Umgebungsvariablen eingestellt. Ohne Angaben gelten die Standardwerte.
+Die Anwendung wird über Umgebungsvariablen eingestellt.
 
-| Einstellung | Standard | Bedeutung |
-|---|---|---|
-| `ADMIN_PIN` | *(leer)* | PIN zum Schutz kritischer Aktionen (z. B. «Alle Gruppen löschen»). Leer = kein PIN-Schutz |
-| `PIN_MODE` | `critical` | `critical`: PIN nur bei kritischen Aktionen. `all`: zusätzlich PIN beim Öffnen der Erfassung |
-| `APP_TITLE` | `Sprützerball Shotcounter` | Überschrift auf beiden Seiten |
-| `PORT` | `3000` | Port, unter dem die Anwendung erreichbar ist |
-| `MAX_NAME_LENGTH` | `40` | Maximale Länge eines Gruppennamens |
+| Einstellung | Bedeutung |
+|---|---|
+| `ADMIN_PIN` |PIN zum Schutz kritischer Aktionen (z. B. «Alle Gruppen löschen»). Leer = kein PIN-Schutz |
+| `PIN_MODE` | `critical`: PIN nur bei kritischen Aktionen. `all`: zusätzlich PIN beim Öffnen der Erfassung |
+| `APP_TITLE` | Überschrift auf beiden Seiten |
+| `PORT` | Port, unter dem die Anwendung erreichbar ist |
+| `MAX_NAME_LENGTH` | Maximale Länge eines Gruppennamens |
 
-Die Einstellungen müssem in der Startdatei `start.cmd` gesetzt werden vor dem Start.
+Die Einstellungen müssen in der Startdatei `start.cmd` gesetzt werden vor dem Start.
 
 ---
 
@@ -178,7 +183,7 @@ Läuft die Anwendung bereits, die Seiten im Browser danach neu laden (`F5`).
 
 Bucht laufend zufällige Punkte, z. B. um die Ranglisten-Anzeige vorzuführen. Die Anwendung muss dafür bereits laufen. Deshalb ein **zweites** Terminal im Anwendungsordner öffnen (siehe Schritt 4):
 ```cmd
-set ADMIN_PIN=<Definierter Admin Pin>
+set ADMIN_PIN=<Definierter Admin Pin aus start.cmd>
 npm run simulate
 ```
 Beenden mit `Ctrl+C`. Die simulierten Punkte bleiben gespeichert. Danach ggf. mit `npm run seed -- --leer` aufräumen.
