@@ -29,7 +29,7 @@ Diese Anleitung führt Schritt für Schritt von einem frischen Windows-Rechner b
     - [Funktionsprüfung](#funktionsprüfung)
   - [8. Mit Tablet oder zweitem Gerät verbinden](#8-mit-tablet-oder-zweitem-gerät-verbinden)
   - [9. Neue Version installieren](#9-neue-version-installieren)
-  - [10. Fehlerbehebung](#11-fehlerbehebung)
+  - [10. Fehlerbehebung](#10-fehlerbehebung)
 
 ---
 
