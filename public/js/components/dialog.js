@@ -178,12 +178,43 @@ export function promptDialog({ title, label, value = '', maxLength, confirmLabel
 
 /**
  * PIN-Abfrage. Prüft die PIN über die übergebene Funktion, bevor der Dialog
- * schliesst. Kann nicht abgebrochen werden.
+ * schliesst. Bei falscher PIN bleibt der Dialog offen und zeigt einen Hinweis.
+ *
+ * Ohne Optionen ist es die Anmeldung beim Start (kann nicht abgebrochen
+ * werden). Mit Optionen lässt sich derselbe Dialog als Sicherheitsabfrage vor
+ * kritischen Aktionen verwenden, z. B. vor "Alle Gruppen löschen".
+ *
+ * @example
+ *   // Sicherheitsabfrage mit Abbrechen-Schaltfläche
+ *   const pin = await pinDialog(verifyPin, {
+ *     title: 'Alle Gruppen löschen?',
+ *     message: 'Zur Bestätigung PIN eingeben.',
+ *     confirmLabel: 'Alles löschen',
+ *     danger: true,
+ *     cancellable: true,
+ *   });
+ *   if (pin === null) return; // abgebrochen
  *
  * @param {(pin: string) => Promise<boolean>} verify Prüft die PIN.
- * @returns {Promise<string>} Die korrekte PIN.
+ * @param {object} [options]
+ * @param {string} [options.title='PIN eingeben'] Überschrift.
+ * @param {string} [options.message='Die Erfassung ist geschützt.'] Erklärender Text.
+ * @param {string} [options.confirmLabel='Entsperren'] Beschriftung der Bestätigungs-Schaltfläche.
+ * @param {boolean} [options.danger=false] Rote Bestätigungs-Schaltfläche (für kritische Aktionen).
+ * @param {boolean} [options.cancellable=false] Schaltfläche "Abbrechen" anzeigen und
+ *        Schliessen mit Escape bzw. Klick daneben erlauben.
+ * @returns {Promise<string|null>} Die korrekte PIN, oder `null`, wenn abgebrochen wurde.
  */
-export function pinDialog(verify) {
+export function pinDialog(
+  verify,
+  {
+    title = 'PIN eingeben',
+    message = 'Die Erfassung ist geschützt.',
+    confirmLabel = 'Entsperren',
+    danger = false,
+    cancellable = false,
+  } = {}
+) {
   const input = el('input', {
     class: 'input input--lg input--pin',
     type: 'password',
@@ -194,14 +225,15 @@ export function pinDialog(verify) {
   const hint = el('p', { class: 'dialog__error', 'aria-live': 'polite' });
 
   return openDialog({
-    title: 'PIN eingeben',
-    content: el('div', {}, el('p', {}, 'Die Erfassung ist geschützt.'), input, hint),
+    title,
+    content: el('div', {}, el('p', {}, message), input, hint),
     initialFocus: input,
-    dismissible: false,
+    dismissible: cancellable,
     actions: [
+      cancellable ? { label: 'Abbrechen', value: null } : null,
       {
-        label: 'Entsperren',
-        variant: 'primary',
+        label: confirmLabel,
+        variant: danger ? 'danger' : 'primary',
         isDefault: true,
         onClick: async () => {
           const pin = input.value.trim();
@@ -211,7 +243,7 @@ export function pinDialog(verify) {
           return false;
         },
       },
-    ],
+    ].filter(Boolean),
   });
 }
 

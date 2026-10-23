@@ -243,15 +243,50 @@ async function openMenu() {
   } else if (choice === 'reset') {
     undoLast();
   } else if (choice === 'clear') {
-    const ok = await confirmDialog({
-      title: 'Alle Gruppen löschen?',
-      message: 'Alle Gruppen und Punkte werden endgültig gelöscht.',
-      confirmLabel: 'Alles löschen',
-      danger: true,
-    });
+    await deleteAllGroups();
+  }
+}
+
+/**
+ * Löscht alle Gruppen nach einer Sicherheitsabfrage.
+ *
+ * Ist eine PIN konfiguriert, muss sie hier erneut eingegeben werden, auch
+ * wenn das Tablet bereits entsperrt ist. "Abbrechen" schliesst den Dialog,
+ * ohne etwas zu ändern. Die Erfassung bleibt entsperrt und kann normal
+ * weiter verwendet werden.
+ *
+ * Ohne konfigurierte PIN genügt eine normale Bestätigung.
+ *
+ * @returns {Promise<void>}
+ */
+async function deleteAllGroups() {
+  const title = 'Alle Gruppen löschen?';
+  const warning = 'Alle Gruppen und Punkte werden endgültig gelöscht.';
+
+  if (!state.config.pinRequired) {
+    const ok = await confirmDialog({ title, message: warning, confirmLabel: 'Alles löschen', danger: true });
     if (ok && (await runAction(() => api.deleteAll())) !== undefined) {
       showToast('Alle Gruppen gelöscht');
     }
+    return;
+  }
+
+  const pin = await pinDialog(verifyPin, {
+    title,
+    message: `${warning} Zur Bestätigung den Admin-PIN eingeben.`,
+    confirmLabel: 'Alles löschen',
+    danger: true,
+    cancellable: true,
+  });
+  if (pin === null) return; // abgebrochen: nichts passiert, Erfassung läuft weiter
+
+  // Bewusst NICHT über runAction(): Bei einem Fehler soll die gespeicherte
+  // PIN des Tablets erhalten bleiben und keine Neuanmeldung ausgelöst werden.
+  try {
+    await api.deleteAll(pin);
+    showToast('Alle Gruppen gelöscht');
+  } catch (err) {
+    showToast(err.message, { type: 'error', durationMs: 5000 });
   }
 }
 

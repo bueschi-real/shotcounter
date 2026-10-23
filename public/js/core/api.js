@@ -121,6 +121,11 @@ export const api = {
   /** @returns {Promise<null>} */
   resetScores: () => request('POST', '/api/groups/reset'),
 
-  /** @returns {Promise<null>} */
-  deleteAll: () => request('DELETE', '/api/groups'),
+    /**
+   * Löscht alle Gruppen.
+   * @param {string} [pin] Frisch eingegebene PIN. Ohne Angabe wird die
+   *        gespeicherte PIN verwendet.
+   * @returns {Promise<null>}
+   */
+  deleteAll: (pin) => request('DELETE', '/api/groups', undefined, { pin }),
 };
