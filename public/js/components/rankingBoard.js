@@ -9,7 +9,7 @@
  *  - Passen nicht alle Zeilen auf den Bildschirm, wird auf mehrere Spalten verteilt.
  */
 
-import { el, restartAnimation } from '../core/dom.js';
+import { el, restartAnimation, playAnimationOnce } from '../core/dom.js';
 import { formatPoints, formatSigned } from '../core/format.js';
 
 /**
@@ -132,7 +132,7 @@ export function createRankingBoard(container, options) {
       entry.name.textContent = group.name;
       entry.score.textContent = formatPoints(group.score);
       entry.row.dataset.podium = group.rank <= options.podiumPlaces ? String(group.rank) : '';
-      if (entry.score_ !== null && entry.score_ !== group.score) restartAnimation(entry.score, 'is-bumped');
+      if (entry.score_ !== null && entry.score_ !== group.score) playAnimationOnce(entry.score, 'is-bumped');
       entry.score_ = group.score;
 
       // Nur verschieben, wenn die Zeile nicht schon an der richtigen Stelle

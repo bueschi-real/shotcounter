@@ -1,15 +1,15 @@
 {
   "_hinweis": "Testdaten für 'npm run seed'. Namen und Punkte frei anpassbar. Jeder Eintrag in 'buchungen' wird als einzelne Buchung gespeichert (dadurch funktioniert auch 'Rückgängig').",
   "gruppen": [
-    { "name": "Tisch 1", "buchungen": [10, 5, 5] },
-    { "name": "Tisch 4", "buchungen": [5] },
-    { "name": "Die Schnellen", "buchungen": [10, 10, 1] },
+    { "name": "Adelbode 2027", "buchungen": [10, 5, 5] },
+    { "name": "Chessler", "buchungen": [5] },
+    { "name": "Bänkli", "buchungen": [10, 10, 1] },
     { "name": "Stammtisch", "buchungen": [10, 5] },
-    { "name": "Team Rösti", "buchungen": [10, 27] },
-    { "name": "Quizfüchse", "buchungen": [5, 5, 5, 1] },
-    { "name": "Bar-Crew", "buchungen": [] },
-    { "name": "Geburtstagsrunde Müller", "buchungen": [1, 1, 5] },
-    { "name": "Firmenessen Storen AG", "buchungen": [10, 10, 10, -3] },
-    { "name": "Die Unbesiegbaren", "buchungen": [15] }
+    { "name": "SHC", "buchungen": [10, 27, 13] },
+    { "name": "SVT", "buchungen": [5, 5, 5, 1] },
+    { "name": "Bar-Crew", "buchungen": [8] },
+    { "name": "Sumpfberghüüler", "buchungen": [1, 1, 5] },
+    { "name": "MVT", "buchungen": [10, 10, 10, -3] },
+    { "name": "Tröpfli Clique", "buchungen": [15] }
   ]
 }

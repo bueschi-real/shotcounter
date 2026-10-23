@@ -23,6 +23,22 @@ function readInt(name, fallback) {
   return Number.isFinite(value) ? value : fallback;
 }
 
+/** Erlaubte Werte für PIN_MODE. */
+const PIN_MODES = ['critical', 'all'];
+
+/**
+ * Liest den PIN-Modus aus der Umgebungsvariable `PIN_MODE`.
+ * Ungültige Werte werden mit einer Warnung durch den Standard ersetzt.
+ *
+ * @returns {'critical'|'all'}
+ */
+function readPinMode() {
+  const value = (process.env.PIN_MODE || 'critical').trim().toLowerCase();
+  if (PIN_MODES.includes(value)) return value;
+  console.warn(`[config] Ungültiger PIN_MODE "${process.env.PIN_MODE}", verwende "critical".`);
+  return 'critical';
+}
+
 /**
  * Unveränderliches Konfigurationsobjekt.
  *
@@ -31,6 +47,7 @@ function readInt(name, fallback) {
  *   dataDir: string,
  *   dbFile: string,
  *   adminPin: string,
+ *   pinMode: 'critical'|'all',
  *   appTitle: string,
  *   maxNameLength: number,
  *   maxPointsPerBooking: number,
@@ -47,14 +64,24 @@ const config = Object.freeze({
   /** Dateiname der SQLite-Datenbank innerhalb von `dataDir`. */
   dbFile: process.env.DB_FILE || 'rangliste.db',
 
-  /**
-   * PIN zum Schutz der Erfassung (alle schreibenden Aktionen).
-   * Leer lassen, um den Schutz zu deaktivieren.
+    /**
+   * Admin-PIN. Leer lassen, um den PIN-Schutz komplett zu deaktivieren.
+   * Wofür die PIN verlangt wird, bestimmt `pinMode`.
    */
   adminPin: (process.env.ADMIN_PIN || '').trim(),
 
+  /**
+   * Wann die PIN verlangt wird (Umgebungsvariable `PIN_MODE`):
+   *  - 'critical' (Standard): Nur bei kritischen Aktionen (z. B. "Alle Gruppen
+   *    löschen"), dort aber jedes Mal neu. Die normale Erfassung geht ohne PIN.
+   *  - 'all': Zusätzlich beim Start der Erfassung. Alle schreibenden Aktionen
+   *    sind geschützt, das Tablet merkt sich die PIN (frühere Funktion).
+   *    Kritische Aktionen fragen die PIN trotzdem jedes Mal neu ab.
+   */
+  pinMode: readPinMode(),
+
   /** Titel, der auf beiden Seiten angezeigt wird. */
-  appTitle: process.env.APP_TITLE || 'Rangliste',
+  appTitle: process.env.APP_TITLE || 'Sprützerball Shotcounter',
 
   /** Maximale Länge eines Gruppennamens. */
   maxNameLength: readInt('MAX_NAME_LENGTH', 40),

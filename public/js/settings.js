@@ -18,6 +18,9 @@ export const ERFASSUNG = Object.freeze({
 
   /** Anzeigedauer der Rückmeldungen unten am Bildschirm (ms). */
   toastDurationMs: 4000,
+
+  /** Anzeigedauer der Meldung nach einer Punktebuchung, mit "Rückgängig" (ms). */
+  bookingToastDurationMs: 4000,
 });
 
 /** Einstellungen für die Ranglisten-Anzeige (Bildschirm). */
@@ -46,6 +49,7 @@ export const RANGLISTE = Object.freeze({
 
 /** Schlüssel für Werte, die im Browser gespeichert werden (localStorage). */
 export const STORAGE_KEYS = Object.freeze({
+  /** Gespeicherte PIN, nur bei PIN_MODE=all verwendet. */
   pin: 'rangliste.pin',
   sort: 'rangliste.sort',
 });

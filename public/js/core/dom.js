@@ -66,3 +66,45 @@ export function restartAnimation(node, className) {
   void node.offsetWidth; // erzwingt Neuberechnung, damit die Animation neu startet
   node.classList.add(className);
 }
+
+
+/**
+ * Spielt eine CSS-Animation genau einmal ab und entfernt die Klasse danach
+ * wieder.
+ *
+ * Für einmalige Effekte (z. B. "Zahl blinkt auf") immer diese Funktion
+ * verwenden statt `restartAnimation()`. Grund: Bleibt die Klasse am Element,
+ * startet der Browser die Animation erneut, sobald das Element im DOM
+ * verschoben wird (z. B. beim Umsortieren der Karten). Dann würden alte
+ * Effekte ohne Anlass wieder aufblinken.
+ *
+ * `restartAnimation()` ist nur für Zustände gedacht, die bewusst länger
+ * sichtbar bleiben und selbst wieder entfernt werden (z. B. Hervorhebung auf
+ * der Rangliste).
+ *
+ * @param {HTMLElement} node
+ * @param {string} className Klasse mit der Animation.
+ * @returns {void}
+ */
+export function playAnimationOnce(node, className) {
+  restartAnimation(node, className);
+
+  /** Entfernt die Klasse, sobald die Animation DIESES Elements fertig ist. */
+  const cleanup = (event) => {
+    // Animationen von Kind-Elementen lösen das Ereignis ebenfalls aus (Bubbling)
+    if (event.target !== node) return;
+    node.classList.remove(className);
+    node.removeEventListener('animationend', cleanup);
+    node.removeEventListener('animationcancel', cleanup);
+  };
+
+  // Vorherige Aufräum-Funktion ersetzen, falls die Animation schnell
+  // hintereinander mehrmals gestartet wird
+  if (node._animationCleanup) {
+    node.removeEventListener('animationend', node._animationCleanup);
+    node.removeEventListener('animationcancel', node._animationCleanup);
+  }
+  node._animationCleanup = cleanup;
+  node.addEventListener('animationend', cleanup);
+  node.addEventListener('animationcancel', cleanup);
+}

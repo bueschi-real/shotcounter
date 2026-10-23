@@ -1,6 +1,6 @@
 /**
- * @file Einfacher PIN-Schutz für schreibende Aktionen.
- *
+ * @file Einfacher PIN-Schutz für schreibende und kritische Aktionen.
+ * 
  * Das Frontend schickt die PIN im HTTP-Header `X-Admin-Pin` mit. Ist in der
  * Konfiguration keine PIN gesetzt (`ADMIN_PIN` leer), ist der Schutz aus.
  *
@@ -56,4 +56,34 @@ function requirePin(configuredPin) {
   };
 }
 
-module.exports = { requirePin, isPinValid, PIN_HEADER };
+/**
+ * Middleware, die jede Anfrage durchlässt (wenn kein Schutz nötig ist).
+ * @type {import('express').RequestHandler}
+ */
+function allowAll(_req, _res, next) {
+  next();
+}
+
+/**
+ * Erstellt die beiden PIN-Schutzstufen anhand der Konfiguration.
+ *
+ * - `requireCriticalPin`: für kritische Aktionen (z. B. "Alle Gruppen
+ *   löschen"). Verlangt die PIN immer, unabhängig vom PIN-Modus.
+ * - `requireWritePin`: für alle übrigen schreibenden Aktionen. Verlangt die
+ *   PIN nur im Modus 'all', im Modus 'critical' lässt sie alles durch.
+ *
+ * Ist keine PIN konfiguriert, lassen beide alles durch.
+ *
+ * @param {{ adminPin: string, pinMode: 'critical'|'all' }} config
+ * @returns {{
+ *   requireCriticalPin: import('express').RequestHandler,
+ *   requireWritePin: import('express').RequestHandler
+ * }}
+ */
+function createPinGuards({ adminPin, pinMode }) {
+  const requireCriticalPin = requirePin(adminPin);
+  const requireWritePin = pinMode === 'all' ? requireCriticalPin : allowAll;
+  return { requireCriticalPin, requireWritePin };
+}
+
+module.exports = { requirePin, createPinGuards, isPinValid, PIN_HEADER };

@@ -14,7 +14,7 @@
 
 import { api } from '../core/api.js';
 import { connectLive } from '../core/liveConnection.js';
-import { $, restartAnimation } from '../core/dom.js';
+import { $, playAnimationOnce } from '../core/dom.js';
 import { formatSigned, pointsLabel } from '../core/format.js';
 import { readValue, writeValue, removeValue } from '../core/storage.js';
 import { ERFASSUNG, STORAGE_KEYS } from '../settings.js';
@@ -52,7 +52,6 @@ const dom = {
   createInput: $('#create-name'),
   search: $('#search'),
   sortButtons: [...document.querySelectorAll('[data-sort]')],
-  undoButton: $('#undo-btn'),
   menuButton: $('#menu-btn'),
   cards: $('#cards'),
   empty: $('#empty'),
@@ -89,12 +88,22 @@ async function verifyPin(pin) {
 }
 
 /**
- * Stellt sicher, dass eine gültige PIN gespeichert ist (falls nötig).
+ * Gibt an, ob die PIN beim Start verlangt wird und alle Änderungen schützt
+ * (PIN_MODE=all, frühere Funktion). Im Standardmodus ('critical') wird die
+ * PIN nur bei kritischen Aktionen abgefragt.
+ * @returns {boolean}
+ */
+function isPinRequiredForAll() {
+  return Boolean(state.config?.pinRequired && state.config.pinMode === 'all');
+}
+
+/**
+ * Stellt sicher, dass eine gültige PIN gespeichert ist (nur bei PIN_MODE=all).
  * Fragt sie andernfalls per Dialog ab.
  * @returns {Promise<void>}
  */
 async function ensurePin() {
-  if (!state.config?.pinRequired) return;
+  if (!isPinRequiredForAll()) return;
   const stored = readValue(STORAGE_KEYS.pin);
   if (stored && (await verifyPin(stored))) return;
   removeValue(STORAGE_KEYS.pin);
@@ -104,7 +113,7 @@ async function ensurePin() {
 
 /**
  * Führt eine Server-Aktion aus und behandelt Fehler einheitlich:
- *  - PIN ungültig → PIN neu abfragen und Aktion einmal wiederholen,
+ *  - PIN ungültig und PIN_MODE=all → PIN neu abfragen und Aktion wiederholen,
  *  - andere Fehler → als rote Meldung anzeigen.
  *
  * @template T
@@ -115,7 +124,7 @@ async function runAction(action) {
   try {
     return await action();
   } catch (err) {
-    if (err.isUnauthorized) {
+    if (err.isUnauthorized && isPinRequiredForAll()) {
       removeValue(STORAGE_KEYS.pin);
       await ensurePin();
       return runAction(action);
@@ -123,6 +132,71 @@ async function runAction(action) {
     showToast(err.message, { type: 'error', durationMs: 5000 });
     return undefined;
   }
+}
+
+/**
+ * Sicherheitsabfrage vor einer kritischen Aktion.
+ *
+ * Ist eine PIN konfiguriert, muss sie bei JEDEM Aufruf neu eingegeben werden,
+ * unabhängig vom PIN-Modus und davon, ob das Tablet schon entsperrt ist. Ohne
+ * konfigurierte PIN erscheint eine normale Sicherheitsabfrage. In beiden
+ * Fällen kann abgebrochen werden.
+ *
+ * Wird meist nicht direkt aufgerufen, sondern über `runCriticalAction()`.
+ *
+ * @param {object} options
+ * @param {string} options.title         Überschrift des Dialogs.
+ * @param {string} options.message       Warnung bzw. Erklärung.
+ * @param {string} options.confirmLabel  Beschriftung der (roten) Bestätigungs-Schaltfläche.
+ * @returns {Promise<string|null>} Die eingegebene PIN (`''`, wenn keine PIN
+ *          konfiguriert ist), oder `null`, wenn abgebrochen wurde.
+ */
+async function confirmWithPin({ title, message, confirmLabel }) {
+  if (!state.config.pinRequired) {
+    const ok = await confirmDialog({ title, message, confirmLabel, danger: true });
+    return ok ? '' : null;
+  }
+  return pinDialog(verifyPin, {
+    title,
+    message: `${message} Zur Bestätigung den Admin-PIN eingeben.`,
+    confirmLabel,
+    danger: true,
+    cancellable: true,
+  });
+}
+
+/**
+ * Führt eine kritische Aktion aus: zuerst Sicherheitsabfrage mit PIN
+ * (`confirmWithPin()`), dann die Aktion mit der eingegebenen PIN.
+ * Bei "Abbrechen" passiert nichts, die Erfassung läuft normal weiter.
+ *
+ * Neue kritische Aktion hinzufügen:
+ *   1. Backend: `requireCriticalPin` in die Route einsetzen
+ *      (src/routes/groupRoutes.js).
+ *   2. API: Methode mit Parameter `pin` ergänzen (public/js/core/api.js,
+ *      Vorlage: `deleteAll`).
+ *   3. Hier aufrufen, z. B.:
+ *        const result = await runCriticalAction({
+ *          title: 'Gruppe löschen?',
+ *          message: 'Die Gruppe wird endgültig gelöscht.',
+ *          confirmLabel: 'Löschen',
+ *          action: (pin) => api.deleteGroup(groupId, pin),
+ *        });
+ *        if (result !== undefined) showToast('Gelöscht');
+ *
+ * @template T
+ * @param {object} options
+ * @param {string} options.title         Überschrift des Dialogs.
+ * @param {string} options.message       Warnung bzw. Erklärung.
+ * @param {string} options.confirmLabel  Beschriftung der Bestätigungs-Schaltfläche.
+ * @param {(pin: string) => Promise<T>} options.action  Server-Aufruf, erhält die eingegebene PIN.
+ * @returns {Promise<T|undefined>} Ergebnis der Aktion, oder `undefined`, wenn
+ *          abgebrochen wurde oder ein Fehler auftrat.
+ */
+async function runCriticalAction({ title, message, confirmLabel, action }) {
+  const pin = await confirmWithPin({ title, message, confirmLabel });
+  if (pin === null) return undefined; // abgebrochen
+  return runAction(() => action(pin));
 }
 
 // ---------------------------------------------------------------------------
@@ -159,9 +233,9 @@ async function handleCreate(event) {
 async function bookPoints(groupId, points) {
   const group = await runAction(() => api.addPoints(groupId, points));
   if (!group) return;
-  showToast(`${formatSigned(points)} ${pointsLabel(points)} für «${group.name}»`, {
+  showToast(`${formatSigned(points)} ${pointsLabel(points)} für '${group.name}'`, {
     type: 'success',
-    durationMs: ERFASSUNG.toastDurationMs,
+    durationMs: ERFASSUNG.bookingToastDurationMs,
     action: { label: 'Rückgängig', onClick: undoLast },
   });
 }
@@ -206,14 +280,14 @@ async function editGroup(groupId) {
       danger: true,
     });
     if (ok && (await runAction(() => api.deleteGroup(groupId)))) {
-      showToast(`«${group.name}» gelöscht`, { durationMs: ERFASSUNG.toastDurationMs });
+      showToast(`'${group.name}' gelöscht`, { durationMs: ERFASSUNG.toastDurationMs });
     }
     return;
   }
 
   if (typeof result === 'string' && result !== group.name) {
     const renamed = await runAction(() => api.renameGroup(groupId, result));
-    if (renamed) showToast(`Umbenannt in «${renamed.name}»`, { type: 'success' });
+    if (renamed) showToast(`Umbenannt in '${renamed.name}'`, { type: 'success' });
   }
 }
 
@@ -221,7 +295,7 @@ async function editGroup(groupId) {
 async function undoLast() {
   const result = await runAction(() => api.undo());
   if (!result) return;
-  showToast(`Rückgängig: ${formatSigned(-result.points)} bei «${result.group.name}»`, {
+  showToast(`Rückgängig: ${formatSigned(-result.points)} ${pointsLabel(result.points)} bei '${result.group.name}'`, {
     durationMs: ERFASSUNG.toastDurationMs,
   });
 }
@@ -233,6 +307,7 @@ async function openMenu() {
     className: 'dialog--menu',
     actions: [
       { label: 'Rangliste in neuem Fenster öffnen', value: 'open' },
+      { label: 'Letzte Aktion zurücksetzen', value: 'reset'},
       { label: 'Alle Gruppen löschen', variant: 'danger', value: 'clear' },
       { label: 'Schliessen', value: null },
     ],
@@ -240,17 +315,27 @@ async function openMenu() {
 
   if (choice === 'open') {
     window.open('/rangliste', '_blank');
+  } else if (choice === 'reset') {
+    undoLast();
   } else if (choice === 'clear') {
-    const ok = await confirmDialog({
-      title: 'Alle Gruppen löschen?',
-      message: 'Alle Gruppen und Punkte werden endgültig gelöscht.',
-      confirmLabel: 'Alles löschen',
-      danger: true,
-    });
-    if (ok && (await runAction(() => api.deleteAll())) !== undefined) {
-      showToast('Alle Gruppen gelöscht');
-    }
+    await deleteAllGroups();
   }
+}
+
+/**
+ * Löscht alle Gruppen. Kritische Aktion: verlangt jedes Mal die PIN
+ * (siehe `runCriticalAction()`).
+ *
+ * @returns {Promise<void>}
+ */
+async function deleteAllGroups() {
+  const result = await runCriticalAction({
+    title: 'Alle Gruppen löschen?',
+    message: 'Alle Gruppen und Punkte werden endgültig gelöscht.',
+    confirmLabel: 'Alles löschen',
+    action: (pin) => api.deleteAll(pin),
+  });
+  if (result !== undefined) showToast('Alle Gruppen gelöscht');
 }
 
 /**
@@ -331,7 +416,6 @@ function render() {
   dom.empty.hidden = groups.length > 0;
   dom.empty.textContent = total === 0 ? 'Noch keine Gruppen. Lege oben die erste an.' : 'Keine Gruppe passt zur Suche.';
   dom.count.textContent = `${total} ${total === 1 ? 'Gruppe' : 'Gruppen'}`;
-  dom.undoButton.disabled = !state.snapshot.canUndo;
   for (const button of dom.sortButtons) {
     button.setAttribute('aria-pressed', String(button.dataset.sort === state.sort));
   }
@@ -340,7 +424,7 @@ function render() {
   if (state.focusGroupId && cards.has(state.focusGroupId)) {
     const element = cards.get(state.focusGroupId).element;
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    restartAnimation(element, 'is-new');
+    playAnimationOnce(element, 'is-new');
     state.focusGroupId = null;
   }
 }
@@ -350,14 +434,15 @@ function render() {
 // ---------------------------------------------------------------------------
 
 /**
- * Initialisiert die Seite: Konfiguration laden, PIN prüfen, Live-Verbindung
- * aufbauen und Bedienelemente verknüpfen.
+  * Initialisiert die Seite: Konfiguration laden, PIN prüfen (nur bei
+  * PIN_MODE=all), Live-Verbindung aufbauen und Bedienelemente verknüpfen.
  * @returns {Promise<void>}
  */
 async function init() {
   state.config = await api.getConfig().catch(() => ({
     appTitle: 'Rangliste',
     pinRequired: false,
+    pinMode: 'critical',
     maxNameLength: 40,
     maxPointsPerBooking: 1000,
   }));
@@ -365,6 +450,9 @@ async function init() {
   document.title = `Erfassung · ${state.config.appTitle}`;
   dom.createInput.maxLength = state.config.maxNameLength;
 
+  // Gespeicherte PIN nur im Modus 'all' behalten. Im Standardmodus wird sie
+  // nicht gebraucht und aus Sicherheitsgründen entfernt.
+  if (!isPinRequiredForAll()) removeValue(STORAGE_KEYS.pin);
   await ensurePin();
 
   const badge = createConnectionBadge();
@@ -384,7 +472,6 @@ async function init() {
     render();
   });
   for (const button of dom.sortButtons) button.addEventListener('click', () => setSort(button.dataset.sort));
-  dom.undoButton.addEventListener('click', undoLast);
   dom.menuButton.addEventListener('click', openMenu);
 
   render();

@@ -5,16 +5,26 @@
  * rufen den Service auf und geben das Ergebnis als JSON zurück. Validierung
  * und Logik liegen im Service, Fehler behandelt der zentrale Fehler-Handler.
  *
- * | Methode | Pfad                         | Zweck                          | PIN |
- * |---------|------------------------------|--------------------------------|-----|
- * | GET     | /api/groups                  | Rangliste (Snapshot) lesen     | nein|
- * | POST    | /api/groups                  | Gruppe anlegen  {name}         | ja  |
- * | PATCH   | /api/groups/:id              | Gruppe umbenennen {name}       | ja  |
- * | DELETE  | /api/groups/:id              | Gruppe löschen                 | ja  |
- * | POST    | /api/groups/:id/points       | Punkte buchen {points}         | ja  |
- * | POST    | /api/groups/undo             | Letzte Buchung rückgängig      | ja  |
- * | POST    | /api/groups/reset            | Neue Runde (alle Punkte = 0)   | ja  |
- * | DELETE  | /api/groups                  | Alle Gruppen löschen           | ja  |
+ * | Methode | Pfad                         | Zweck                          | PIN      |
+ * |---------|------------------------------|--------------------------------|----------|
+ * | GET     | /api/groups                  | Rangliste (Snapshot) lesen     | nie      |
+ * | POST    | /api/groups                  | Gruppe anlegen  {name}         | Schreiben|
+ * | PATCH   | /api/groups/:id              | Gruppe umbenennen {name}       | Schreiben|
+ * | DELETE  | /api/groups/:id              | Gruppe löschen                 | Schreiben|
+ * | POST    | /api/groups/:id/points       | Punkte buchen {points}         | Schreiben|
+ * | POST    | /api/groups/undo             | Letzte Buchung rückgängig      | Schreiben|
+ * | POST    | /api/groups/reset            | Neue Runde (alle Punkte = 0)   | Schreiben|
+ * | DELETE  | /api/groups                  | Alle Gruppen löschen           | Kritisch |
+ *
+ * ## PIN-Schutzstufen (siehe middleware/requirePin.js)
+ * - Schreiben (`requireWritePin`): PIN nur nötig bei PIN_MODE=all.
+ * - Kritisch (`requireCriticalPin`): PIN immer nötig (falls eine gesetzt ist).
+ *
+ * Weitere Aktion als kritisch markieren: `requireCriticalPin` in die Route
+ * einsetzen, z. B.
+ *   router.delete('/:id', requireCriticalPin, (req, res) => { ... });
+ * und im Frontend die Aktion über `runCriticalAction()` auslösen
+ * (public/js/pages/erfassung.js).
  */
 
 'use strict';
@@ -26,10 +36,11 @@ const express = require('express');
  *
  * @param {object} deps
  * @param {ReturnType<import('../services/groupService').createGroupService>} deps.groupService
- * @param {import('express').RequestHandler} deps.requirePin Middleware für den PIN-Schutz.
+ * @param {import('express').RequestHandler} deps.requireWritePin    Schutz für normale Änderungen.
+ * @param {import('express').RequestHandler} deps.requireCriticalPin Schutz für kritische Aktionen.
  * @returns {import('express').Router}
  */
-function createGroupRoutes({ groupService, requirePin }) {
+function createGroupRoutes({ groupService, requireWritePin, requireCriticalPin }) {
   const router = express.Router();
 
   /** Aktuelle Rangliste lesen (auch ohne Live-Verbindung nutzbar). */
@@ -37,8 +48,8 @@ function createGroupRoutes({ groupService, requirePin }) {
     res.json(groupService.getSnapshot());
   });
 
-  // Ab hier: alle Routen nur mit gültiger PIN.
-  router.use(requirePin);
+  // Ab hier: schreibende Routen. PIN nur nötig bei PIN_MODE=all.
+  router.use(requireWritePin);
 
   /** Neue Gruppe anlegen. Body: `{ "name": "Tisch 4" }` */
   router.post('/', (req, res) => {
@@ -60,8 +71,8 @@ function createGroupRoutes({ groupService, requirePin }) {
     res.status(204).end();
   });
 
-  /** Alle Gruppen löschen. */
-  router.delete('/', (_req, res) => {
+  /** Alle Gruppen löschen. Kritisch: PIN immer nötig. */
+  router.delete('/', requireCriticalPin, (_req, res) => {
     groupService.deleteAll();
     res.status(204).end();
   });

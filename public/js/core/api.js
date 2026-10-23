@@ -33,7 +33,9 @@ export class ApiError extends Error {
 
 /**
  * Führt einen HTTP-Aufruf aus und liefert die JSON-Antwort.
- * Die gespeicherte PIN wird automatisch mitgeschickt.
+ * Eine ausdrücklich übergebene PIN hat Vorrang (kritische Aktionen). Sonst
+ * wird die gespeicherte PIN mitgeschickt, falls vorhanden (nur bei
+ * PIN_MODE=all).
  *
  * @param {string} method  HTTP-Methode (GET, POST, PATCH, DELETE).
  * @param {string} path    Pfad, z. B. "/api/groups".
@@ -76,7 +78,7 @@ async function request(method, path, body, { pin } = {}) {
  * Jede Methode entspricht genau einem Endpunkt im Backend.
  */
 export const api = {
-  /** @returns {Promise<{appTitle:string, pinRequired:boolean, maxNameLength:number, maxPointsPerBooking:number}>} */
+  /** @returns {Promise<{appTitle:string, pinRequired:boolean, pinMode:'critical'|'all', maxNameLength:number, maxPointsPerBooking:number}>} */
   getConfig: () => request('GET', '/api/config'),
 
   /**
@@ -121,6 +123,10 @@ export const api = {
   /** @returns {Promise<null>} */
   resetScores: () => request('POST', '/api/groups/reset'),
 
-  /** @returns {Promise<null>} */
-  deleteAll: () => request('DELETE', '/api/groups'),
+    /**
+   * Löscht alle Gruppen.
+   * @param {string} [pin] Soeben eingegebene PIN (kritische Aktion).
+   * @returns {Promise<null>}
+   */
+  deleteAll: (pin) => request('DELETE', '/api/groups', undefined, { pin }),
 };

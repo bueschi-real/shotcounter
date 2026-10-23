@@ -34,6 +34,7 @@ function createSystemRoutes({ config, sseHub }) {
     res.json({
       appTitle: config.appTitle,
       pinRequired: Boolean(config.adminPin),
+      pinMode: config.pinMode,
       maxNameLength: config.maxNameLength,
       maxPointsPerBooking: config.maxPointsPerBooking,
     });
