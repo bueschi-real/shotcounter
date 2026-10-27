@@ -199,6 +199,12 @@
   border-color: var(--color-border);
 }
 
+/* Quickbuttons ausgeblendet (Menü → "Quickbuttons ausblenden").
+   Der Button "±…" bleibt sichtbar und nimmt dann die ganze Breite ein. */
+.cards.hide-quick-buttons .btn--quick {
+  display: none;
+}
+
 .empty {
   padding: var(--space-6);
   text-align: center;
