@@ -17,7 +17,7 @@
 
 import { api } from '../core/api.js';
 import { connectLive } from '../core/liveConnection.js';
-import { applyTheme, readThemeFromUrl } from '../core/theme.js';
+import { applyTheme, readThemeFromUrl, getTheme, setTheme } from '../core/theme.js';
 import { $, playAnimationOnce } from '../core/dom.js';
 import { formatSigned, pointsLabel } from '../core/format.js';
 import { readValue, writeValue, removeValue } from '../core/storage.js';
@@ -313,6 +313,7 @@ async function openMenu() {
     className: 'dialog--menu',
     actions: [
       { label: 'Rangliste in neuem Fenster öffnen', value: 'open' },
+      { label: getTheme() === 'light' ? 'Dunkles Design' : 'Helles Design', value: 'theme' },
       { label: state.showQuickButtons ? 'Quickbuttons ausblenden' : 'Quickbuttons einblenden', value: 'quickButtons' },
       { label: 'Letzte Aktion zurücksetzen', value: 'reset'},
       { label: 'Alle Gruppen löschen', variant: 'danger', value: 'clear' },
@@ -322,6 +323,8 @@ async function openMenu() {
 
   if (choice === 'open') {
     window.open('/rangliste', '_blank');
+  } else if (choice === 'theme') {
+    setTheme(getTheme() === 'light' ? 'dark' : 'light');
   } else if (choice === 'quickButtons') {
     setQuickButtonsVisible(!state.showQuickButtons);
   } else if (choice === 'reset') {
