@@ -7,6 +7,9 @@
  *  - Gruppenkarten mit Schnellbuttons und Ziffernblock,
  *  - Suche, Sortierung, Rückgängig, Menü (neue Runde, alles löschen).
  *
+ * Optionen per URL-Parameter:
+ *   theme=light    Helles Design statt dunkel (z. B. /?theme=light).
+ * 
  * Datenfluss: Aktionen gehen per REST an den Server. Die Anzeige wird NICHT
  * direkt geändert, sondern über den Live-Snapshot aktualisiert, der nach jeder
  * Änderung vom Server kommt. So sehen alle Geräte immer denselben Stand.
@@ -14,6 +17,7 @@
 
 import { api } from '../core/api.js';
 import { connectLive } from '../core/liveConnection.js';
+import { applyTheme, readThemeFromUrl } from '../core/theme.js';
 import { $, playAnimationOnce } from '../core/dom.js';
 import { formatSigned, pointsLabel } from '../core/format.js';
 import { readValue, writeValue, removeValue } from '../core/storage.js';
@@ -463,6 +467,8 @@ function render() {
  * @returns {Promise<void>}
  */
 async function init() {
+  applyTheme(readThemeFromUrl());
+
   state.config = await api.getConfig().catch(() => ({
     appTitle: 'Rangliste',
     pinRequired: false,

@@ -11,23 +11,24 @@
 
 /* 1. Design-Tokens ------------------------------------------------------- */
 :root {
-  --color-bg: #f4f5f7;
-  --color-surface: #ffffff;
-  --color-surface-2: #eef0f3;
-  --color-border: #d9dde3;
-  --color-text: #14181f;
-  --color-text-muted: #5b6573;
+  --color-bg: #eef1f5;          /* Seitenhintergrund (= Textfarbe im dunklen Design) */
+  --color-surface: #ffffff;     /* Karten, Kopfzeile, Dialoge */
+  --color-surface-2: #e6eaf0;   /* Sekundäre Flächen, z. B. Button "±…", Keypad-Anzeige */
+  --color-border: #d3d9e2;
+  --color-text: #191f29;        /* Haupttext (= Kartenfarbe im dunklen Design) */
+  --color-text-muted: #56694f;  /* Nebentext, salbeigrün wie im dunklen Design */
 
-  --color-primary: #0f766e;
-  --color-primary-hover: #0b5f58;
-  --color-on-primary: #ffffff;
+  --color-primary: #0d9488;     /* Petrol: Tönung der Quickbuttons, Hervorhebungen */
+  --color-primary-hover: #0f766e;
+  --color-on-primary: #04201d;  /* Schrift auf Neongrün: dunkel, sonst nicht lesbar */
   --color-danger: #c62828;
   --color-on-danger: #ffffff;
   --color-success: #15803d;
   --color-warning: #b45309;
   --color-minus: #b91c1c;
   --color-focus: #2563eb;
-  --color-shc: #34e739;
+  --color-shc: #34e739;         /* Neongrün: Haupt-Buttons, aktive Sortierung */
+  --color-shc-hover: #2bcf30;
 
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -48,31 +49,13 @@
   color-scheme: light;
 }
 
-/* Dunkles Design: automatisch nach Systemeinstellung (ausser hell erzwungen) */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --color-bg: #0e1116;
-    --color-surface: #191f29;
-    --color-surface-2: #242a33;
-    --color-border: #2e3440;
-    --color-text: #eef1f5;
-    --color-text-muted: #9eb29a;
-    --color-primary: #14b8a6;
-    --color-primary-hover: #2dd4bf;
-    --color-on-primary: #04201d;
-    --color-danger: #ef4444;
-    --color-minus: #f87171;
-    --color-success: #22c55e;
-    --color-focus: #60a5fa;
-    color-scheme: dark;
-  }
-}
-
-/* Dunkles Design: erzwungen über data-theme="dark" (z. B. Rangliste) */
+/* Dunkles Design: aktiv über data-theme="dark" am <html>-Element.
+   Welches Design gilt, bestimmt der URL-Parameter ?theme=light|dark
+   (Standard: dunkel), siehe public/js/core/theme.js. */
 :root[data-theme='dark'] {
   --color-bg: #0e1116;
-  --color-surface: #171b22;
-  --color-surface-2: #20252e;
+  --color-surface: #191f29;
+  --color-surface-2: #242a33;
   --color-border: #2e3440;
   --color-text: #eef1f5;
   --color-text-muted: #9eb29a;
