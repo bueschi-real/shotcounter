@@ -247,6 +247,20 @@ Schnellbuttons, Vorschlagswerte im Ziffernblock, Standard-Sortierung, Animations
 
 Kombinierbar: `/rangliste?top=10&theme=light`
 
+
+### URL-Parameter der Erfassung
+
+| Parameter | Beispiel | Wirkung |
+|---|---|---|
+| `theme` | `/?theme=light` | Helles Design (ohne Parameter: dunkel) |
+
+Das Design wird für beide Seiten gleich über `public/js/core/theme.js` gesteuert. Die Farben stehen in `public/css/base.css` (Abschnitt «Design-Tokens»): `:root` für hell, `:root[data-theme='dark']` für dunkel.
+
+
+Das Design lässt sich auch im **Menü** der Erfassung umschalten («Helles Design» / «Dunkles Design»). Der Parameter wird dabei automatisch in die Adresszeile geschrieben, ein Lesezeichen enthält also das gewählte Design.
+
+Weitere Einstellungen per Menü in die URL schreiben: `setUrlParam(name, wert)` aus `public/js/core/url.js` verwenden.
+
 ### Farben
 
 Alle Farben stehen als Variablen oben in `public/css/base.css` (`--color-primary` usw.). Die Podestfarben stehen in `public/css/rangliste.css` (`--gold`, `--silver`, `--bronze`).

@@ -7,6 +7,9 @@
  *  - Gruppenkarten mit Schnellbuttons und Ziffernblock,
  *  - Suche, Sortierung, Rückgängig, Menü (neue Runde, alles löschen).
  *
+ * Optionen per URL-Parameter:
+ *   theme=light    Helles Design statt dunkel (z. B. /?theme=light).
+ * 
  * Datenfluss: Aktionen gehen per REST an den Server. Die Anzeige wird NICHT
  * direkt geändert, sondern über den Live-Snapshot aktualisiert, der nach jeder
  * Änderung vom Server kommt. So sehen alle Geräte immer denselben Stand.
@@ -14,6 +17,7 @@
 
 import { api } from '../core/api.js';
 import { connectLive } from '../core/liveConnection.js';
+import { applyTheme, readThemeFromUrl, getTheme, setTheme } from '../core/theme.js';
 import { $, playAnimationOnce } from '../core/dom.js';
 import { formatSigned, pointsLabel } from '../core/format.js';
 import { readValue, writeValue, removeValue } from '../core/storage.js';
@@ -35,6 +39,8 @@ const state = {
   snapshot: { groups: [], canUndo: false },
   /** Sortierung der Karten: 'name' | 'score' | 'newest'. */
   sort: readValue(STORAGE_KEYS.sort, ERFASSUNG.defaultSort),
+  /** Quickbuttons (+1, +5, +10) anzeigen? Pro Gerät gespeichert. */
+  showQuickButtons: readValue(STORAGE_KEYS.quickButtons, String(ERFASSUNG.showQuickButtons)) === 'true',
   /** Suchtext (klein geschrieben). */
   filter: '',
   /** ID einer neu erstellten Gruppe, die nach dem nächsten Zeichnen angezeigt werden soll. */
@@ -307,6 +313,8 @@ async function openMenu() {
     className: 'dialog--menu',
     actions: [
       { label: 'Rangliste in neuem Fenster öffnen', value: 'open' },
+      { label: getTheme() === 'light' ? 'Dunkles Design' : 'Helles Design', value: 'theme' },
+      { label: state.showQuickButtons ? 'Quickbuttons ausblenden' : 'Quickbuttons einblenden', value: 'quickButtons' },
       { label: 'Letzte Aktion zurücksetzen', value: 'reset'},
       { label: 'Alle Gruppen löschen', variant: 'danger', value: 'clear' },
       { label: 'Schliessen', value: null },
@@ -315,6 +323,10 @@ async function openMenu() {
 
   if (choice === 'open') {
     window.open('/rangliste', '_blank');
+  } else if (choice === 'theme') {
+    setTheme(getTheme() === 'light' ? 'dark' : 'light');
+  } else if (choice === 'quickButtons') {
+    setQuickButtonsVisible(!state.showQuickButtons);
   } else if (choice === 'reset') {
     undoLast();
   } else if (choice === 'clear') {
@@ -346,6 +358,25 @@ function setSort(sort) {
   state.sort = sort;
   writeValue(STORAGE_KEYS.sort, sort);
   render();
+}
+
+/**
+ * Blendet die Quickbuttons (+1, +5, +10) auf allen Karten ein oder aus und
+ * merkt sich die Wahl für dieses Gerät. Der Button "±…" bleibt immer sichtbar.
+ *
+ * Umgesetzt über die CSS-Klasse `hide-quick-buttons` am Karten-Container
+ * (siehe erfassung.css). Die Karten müssen dafür nicht neu gezeichnet werden.
+ *
+ * @param {boolean} visible `true` = anzeigen, `false` = ausblenden.
+ * @param {object} [options]
+ * @param {boolean} [options.silent=false] Keine Meldung anzeigen (z. B. beim Start).
+ * @returns {void}
+ */
+function setQuickButtonsVisible(visible, { silent = false } = {}) {
+  state.showQuickButtons = visible;
+  writeValue(STORAGE_KEYS.quickButtons, String(visible));
+  dom.cards.classList.toggle('hide-quick-buttons', !visible);
+  if (!silent) showToast(visible ? 'Quickbuttons eingeblendet' : 'Quickbuttons ausgeblendet');
 }
 
 // ---------------------------------------------------------------------------
@@ -439,6 +470,8 @@ function render() {
  * @returns {Promise<void>}
  */
 async function init() {
+  applyTheme(readThemeFromUrl());
+
   state.config = await api.getConfig().catch(() => ({
     appTitle: 'Rangliste',
     pinRequired: false,

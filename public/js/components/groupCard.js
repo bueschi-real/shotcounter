@@ -36,7 +36,7 @@ export function createGroupCard(group, { quickPoints, handlers }) {
       'button',
       {
         type: 'button',
-        class: `btn btn--points ${points < 0 ? 'btn--minus' : ''}`.trim(),
+        class: `btn btn--points btn--quick ${points < 0 ? 'btn--minus' : ''}`.trim(),
         onclick: () => handlers.onQuickPoints(current.id, points),
       },
       formatSigned(points)

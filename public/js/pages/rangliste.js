@@ -14,10 +14,10 @@
 
 import { api } from '../core/api.js';
 import { connectLive } from '../core/liveConnection.js';
+import { applyTheme, readThemeFromUrl } from '../core/theme.js';
 import { $ } from '../core/dom.js';
 import { RANGLISTE } from '../settings.js';
 import { createRankingBoard } from '../components/rankingBoard.js';
-import { createConnectionBadge } from '../components/connectionBadge.js';
 
 /**
  * Liest die Optionen aus der URL.
@@ -28,7 +28,7 @@ function readUrlOptions() {
   const top = Number.parseInt(params.get('top') ?? '', 10);
   return {
     top: Number.isInteger(top) && top > 0 ? top : undefined,
-    theme: params.get('theme') === 'light' ? 'light' : 'dark',
+    theme: readThemeFromUrl(params),
     showClock: params.get('clock') !== '0',
     title: params.get('title'),
   };
@@ -71,7 +71,7 @@ function autoHideCursor(idleMs = 3000) {
  */
 async function init() {
   const options = readUrlOptions();
-  document.documentElement.dataset.theme = options.theme;
+  applyTheme(options.theme);
 
   const config = await api.getConfig().catch(() => ({ appTitle: 'Rangliste' }));
   const title = options.title ?? config.appTitle;

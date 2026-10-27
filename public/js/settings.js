@@ -15,6 +15,12 @@ export const ERFASSUNG = Object.freeze({
 
   /** Standard-Sortierung der Karten: 'name' | 'score' | 'newest'. */
   defaultSort: 'name',
+  
+  /**
+   * Quickbuttons standardmässig anzeigen? Kann pro Gerät im Menü umgeschaltet
+   * werden, die Wahl wird im Browser gespeichert.
+   */
+  showQuickButtons: true,
 
   /** Anzeigedauer der Rückmeldungen unten am Bildschirm (ms). */
   toastDurationMs: 4000,
@@ -52,4 +58,5 @@ export const STORAGE_KEYS = Object.freeze({
   /** Gespeicherte PIN, nur bei PIN_MODE=all verwendet. */
   pin: 'rangliste.pin',
   sort: 'rangliste.sort',
+  quickButtons: 'rangliste.quickButtons',
 });
