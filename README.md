@@ -19,17 +19,17 @@ Diese Anleitung führt Schritt für Schritt von einem frischen Windows-Rechner b
     - [Variante B: Ohne Admin-Rechte](#variante-b-ohne-admin-rechte)
     - [Prüfen](#prüfen)
   - [3. Anwendung herunterladen](#3-anwendung-herunterladen)
-  - [4. Installation abschliessen](#4-installation-abschliessen)
+  - [4. Anwendung starten und beenden](#4-anwendung-starten-und-beenden)
+    - [Start](#start)
+    - [Beenden](#beenden)
   - [5. Einstellungen](#5-einstellungen)
-  - [6. Anwendung starten und beenden](#6-anwendung-starten-und-beenden)
-    - [Gespeicherte Daten](#gespeicherte-daten)
-  - [7. Testdaten und Vorführmodus (optional)](#7-testdaten-und-vorführmodus-optional)
+  - [6. Testdaten und Vorführmodus (optional)](#6-testdaten-und-vorführmodus-optional)
     - [Testdaten laden](#testdaten-laden)
     - [Vorführmodus (Simulation)](#vorführmodus-simulation)
     - [Funktionsprüfung](#funktionsprüfung)
-  - [8. Mit Tablet oder zweitem Gerät verbinden](#8-mit-tablet-oder-zweitem-gerät-verbinden)
-  - [9. Neue Version installieren](#9-neue-version-installieren)
-  - [10. Fehlerbehebung](#10-fehlerbehebung)
+  - [7. Mit Tablet oder zweitem Gerät verbinden](#7-mit-tablet-oder-zweitem-gerät-verbinden)
+  - [8. Neue Version installieren](#8-neue-version-installieren)
+  - [9. Fehlerbehebung](#9-fehlerbehebung)
 
 ---
 
@@ -105,46 +105,36 @@ Liegen diese Dateien in einem zusätzlichen Unterordner (z. B. `Rangliste\shotco
 
 ---
 
-## 4. Installation abschliessen
+## 4. Anwendung starten und beenden
 
-Terminal öffnen und im Projektordner ausführen:
+### Start
 
-```cmd
-npm install
-```
-Dabei werden die benötigten Bausteine aus dem Internet geladen und im Ordner `node_modules` abgelegt. Das dauert je nach Verbindung einige Sekunden bis eine Minute.
+Solange Node.JS wie in [Schritt 2](#2-nodejs-installieren) beschrieben installiert ist, kann die Anwendung über `start.cmd` gestartet werden.
 
-Erfolgreich, wenn am Ende `added … packages` erscheint und keine Zeile mit `ERR!`.
+Bem ersten Start wird die Installation abgeschlossen, dies kann ca. 1 Minute dauern je nach Internet.
+
+Zusätzlich werden diverse Einstellungen bei jedem Start abgefragt. [Siehe Schritt 5](#5-einstellungen)
+
+### Beenden
+
+Die Anwendung wird beendet durch schliessen des cmd Fensters, welches beim Start öffnet.
+
+Alle Gruppen und Punkte werden lokal unter `data\rangliste.db` gespreichert und bleiben bei einem Neustart bestehen.
 
 ---
 
 ## 5. Einstellungen
 
-Die Anwendung wird über Umgebungsvariablen eingestellt.
+Beim Start werden dieverse Einstellungen abgefragt:
 
-| Einstellung | Bedeutung |
-|---|---|
-| `ADMIN_PIN` |PIN zum Schutz kritischer Aktionen (z. B. «Alle Gruppen löschen»). Leer = kein PIN-Schutz |
-| `PIN_MODE` | `critical`: PIN nur bei kritischen Aktionen. `all`: zusätzlich PIN beim Öffnen der Erfassung |
-| `APP_TITLE` | Überschrift auf beiden Seiten |
-| `PORT` | Port, unter dem die Anwendung erreichbar ist |
-| `MAX_NAME_LENGTH` | Maximale Länge eines Gruppennamens |
-
-Die Einstellungen müssen in der Startdatei `start.cmd` gesetzt werden vor dem Start.
+- **Admin Pin**: Dieser Pin ist in erster Linie dazu da um kritische Aktionen, wie das löschen aller Gruppen, durch einen Pin / ein Passwort zu schützen.
+- **Andwenung durch Pin sperren**: Ist diese Option aktiv, muss auch beim öffnen der Webseite der Admin Pin eingegeben werden. Ist für Localhost nicht notwendig.
+- **Titel der Anwendung**: Dies ist die Überschrift welche sowie auf der ERfasung wie auch der Rangliste angezeigt wird.
+- **Port**: Localhost Port
 
 ---
 
-## 6. Anwendung starten und beenden
-
-Ab jetzt genügt ein **Doppelklick auf `start.cmd`**. Beenden durch Schliessen des Fensters.
-
-### Gespeicherte Daten
-
-Alle Gruppen und Punkte werden in der Datei `data\rangliste.db` gespeichert und bleiben nach einem Neustart erhalten. Für eine Sicherung diese Datei kopieren, während die Anwendung beendet ist.
-
----
-
-## 7. Testdaten und Vorführmodus (optional)
+## 6. Testdaten und Vorführmodus (optional)
 
 Diese Befehle werden im Terminal im Anwendungsordner ausgeführt.
 
@@ -183,7 +173,7 @@ Prüft die Anwendung automatisch. Die Ausgabe muss mit `# fail 0` enden. Bestehe
 
 ---
 
-## 8. Mit Tablet oder zweitem Gerät verbinden
+## 7. Mit Tablet oder zweitem Gerät verbinden
 
 1. Tablet und Rechner müssen im **gleichen Netzwerk** (WLAN) sein.
 2. Auf dem Tablet die Adresse aus dem Terminal öffnen: `Im Netzwerk: http://192.168.x.x:3000/`
@@ -197,19 +187,18 @@ Erreicht das Tablet die Seite nicht:
 
 ---
 
-## 9. Neue Version installieren
+## 8. Neue Version installieren
 
 1. Anwendung beenden.
 2. Neue ZIP-Datei herunterladen und **in einen neuen Ordner** entpacken (siehe Schritt 3).
-3. Die bisherigen Daten übernehmen: Die Datei `data\rangliste.db` aus dem alten Ordner in den Ordner `data` des neuen Ordners kopieren. Falls vorhanden, auch `start.cmd` übernehmen.
-4. Im neuen Ordner ein Terminal öffnen und `npm install` ausführen (Schritt 5).
-5. Wie gewohnt starten. Der alte Ordner kann gelöscht werden, sobald alles funktioniert.
+3. Die bisherigen Daten übernehmen: Die Datei `data\rangliste.db` aus dem alten Ordner in den Ordner `data` des neuen Ordners **kopieren**.
+4. Wie gewohnt starten. Der alte Ordner kann gelöscht werden, sobald alles funktioniert.
 
 > Eine neue Version kann die Datenbank beim ersten Start automatisch erweitern. Die bestehenden Daten bleiben dabei erhalten. Die Kopie im alten Ordner dient trotzdem als Sicherung.
 
 ---
 
-## 10. Fehlerbehebung
+## 9. Fehlerbehebung
 
 | Problem | Ursache / Lösung |
 |---|---|
@@ -222,6 +211,5 @@ Erreicht das Tablet die Seite nicht:
 | `EADDRINUSE: address already in use :::3000` | Die Anwendung läuft bereits in einem anderen Fenster. Dieses verwenden oder schliessen. Alternativ anderen Port wählen: `set PORT=3001` |
 | Seite zeigt alte Version | Im Browser `Ctrl+F5` drücken |
 | PIN wird nie abgefragt | `ADMIN_PIN` wurde nicht gesetzt. Beim Start erscheint dann `Hinweis: Keine ADMIN_PIN gesetzt` |
-| PIN vergessen | Anwendung beenden, `ADMIN_PIN` neu setzen bzw. in `start.cmd` ändern, neu starten |
 
 
