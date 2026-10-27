@@ -6,6 +6,8 @@
  *  - Rangänderungen werden mit einer Verschiebe-Animation gezeigt
  *    ("FLIP"-Technik: alte Position merken → neu anordnen → hinüber animieren).
  *  - Die zuletzt geänderte Gruppe wird hervorgehoben, mit "+5"-Anzeige.
+ *    Weitere Buchungen derselben Gruppe, solange die Anzeige noch sichtbar
+ *    ist, werden aufsummiert (z. B. +5 und +1 ergibt "+6").
  *  - Passen nicht alle Zeilen auf den Bildschirm, wird auf mehrere Spalten verteilt.
  */
 
@@ -31,7 +33,7 @@ export function createRankingBoard(container, options) {
   const emptyState = el('p', { class: 'board__empty' }, 'Noch keine Gruppen erfasst.');
   container.append(list, emptyState);
 
-  /** @type {Map<number, {row: HTMLElement, rank: HTMLElement, name: HTMLElement, score: HTMLElement, delta: HTMLElement, score_: number}>} */
+  /** @type {Map<number, {row: HTMLElement, rank: HTMLElement, name: HTMLElement, score: HTMLElement, delta: HTMLElement, score_: number, deltaSum: number}>} */
   const rows = new Map();
 
   /** Zeitpunkt der zuletzt hervorgehobenen Änderung (verhindert doppeltes Hervorheben). */
@@ -53,7 +55,7 @@ export function createRankingBoard(container, options) {
     const score = el('span', { class: 'row__score' });
     const delta = el('span', { class: 'row__delta', 'aria-hidden': 'true' });
     const row = el('li', { class: 'row', dataset: { id } }, rank, name, delta, score);
-    const entry = { row, rank, name, score, delta, score_: null };
+    const entry = { row, rank, name, score, delta, score_: null, deltaSum: 0 };
     rows.set(id, entry);
     return entry;
   }
@@ -76,13 +78,15 @@ export function createRankingBoard(container, options) {
   }
 
   /**
-   * Entfernt die Hervorhebung einer Zeile (Rahmen und "+5"-Anzeige).
+   * Entfernt die Hervorhebung einer Zeile (Rahmen und "+5"-Anzeige) und setzt
+   * die aufsummierten Punkte zurück.
    * @param {object} entry Zeilen-Objekt.
    */
   function clearHighlight(entry) {
     clearTimeout(entry.timer);
     entry.row.classList.remove('is-highlighted');
     entry.delta.classList.remove('is-visible');
+    entry.deltaSum = 0;
     if (highlightedEntry === entry) highlightedEntry = null;
   }
 
@@ -90,6 +94,12 @@ export function createRankingBoard(container, options) {
    * Hebt eine Zeile hervor und zeigt die Punkteänderung an.
    * Eine vorher hervorgehobene andere Zeile wird dabei sofort zurückgesetzt,
    * damit immer nur die zuletzt geänderte Gruppe hervorgehoben ist.
+   *
+   * Summierung: Ist die Punkteanzeige dieser Gruppe noch sichtbar (letzte
+   * Änderung liegt weniger als `highlightMs` zurück), werden die neuen Punkte
+   * dazugezählt und die Anzeigedauer beginnt von vorne. Ist die Anzeige
+   * bereits verschwunden oder wurde zwischendurch eine andere Gruppe geändert,
+   * beginnt die Zählung neu.
    *
    * @param {object} entry Zeilen-Objekt.
    * @param {number|undefined} points Geänderte Punkte.
@@ -100,8 +110,10 @@ export function createRankingBoard(container, options) {
 
     restartAnimation(entry.row, 'is-highlighted');
     if (typeof points === 'number') {
-      entry.delta.textContent = formatSigned(points);
-      entry.delta.classList.toggle('is-negative', points < 0);
+      const isStillVisible = entry.delta.classList.contains('is-visible');
+      entry.deltaSum = isStillVisible ? entry.deltaSum + points : points;
+      entry.delta.textContent = formatSigned(entry.deltaSum);
+      entry.delta.classList.toggle('is-negative', entry.deltaSum < 0);
       restartAnimation(entry.delta, 'is-visible');
     }
     clearTimeout(entry.timer);
