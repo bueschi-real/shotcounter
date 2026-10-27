@@ -1,6 +1,6 @@
 # Installation & lokaler Start
 
-Diese Anleitung führt Schritt für Schritt von einem frischen Windows-Rechner bis zur laufenden Anwendung unter `http://localhost:3000`. Sie richtet sich an Anwenderinnen und Anwender, die die Anwendung **nutzen** möchten. Git wird nur benötigt falls entwickelt werden muss.
+Diese Anleitung führt Schritt für Schritt von einem frischen Windows-Rechner bis zur laufenden Anwendung unter `http://localhost:3000`. Git wird nur benötigt falls entwickelt werden muss.
 
 | Seite | Adresse |
 |---|---|
@@ -35,11 +35,11 @@ Diese Anleitung führt Schritt für Schritt von einem frischen Windows-Rechner b
 
 ## 1. Überblick: Was wird gebraucht?
 
-| Was | Wozu | Pflicht? |
-|---|---|---|
-| **Node.js** (mind. Version 22.13) | Führt die Anwendung aus. Enthält **npm** (lädt benötigte Bausteine herunter) und die eingebaute Datenbank | Ja |
-| **Die Anwendung** als ZIP-Datei | Programmdateien | Ja |
-| Internetzugang | Nur für Schritt 5 (einmalig bzw. nach Updates) | Ja |
+| Was | Wozu |
+|---|---|
+| **Node.js** (mind. Version 22.13) | Führt die Anwendung aus. Enthält **npm** (lädt benötigte Bausteine herunter) und die eingebaute Datenbank |
+| **Die Anwendung** als ZIP-Datei | Programmdateien |
+| Internetzugang | Nur für den ersten Start bzw. nach Updates |
 
 Eine separate Datenbank, Git oder Docker sind **nicht** nötig.
 
