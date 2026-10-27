@@ -11,7 +11,7 @@ export const ERFASSUNG = Object.freeze({
   quickPoints: [1, 5, 10],
 
   /** Vorgeschlagene Werte im Punkte-Dialog (Ziffernblock). */
-  dialogPresets: [-5, -1, 1, 5, 10, 20],
+  dialogPresets: [], //[-5, -1, 1, 5, 10, 20],
 
   /** Standard-Sortierung der Karten: 'name' | 'score' | 'newest'. */
   defaultSort: 'name',
