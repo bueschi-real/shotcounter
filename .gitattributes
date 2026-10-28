@@ -1,5 +1,7 @@
 package-lock.json text eol=lf
 package.json      text eol=lf
+*.cmd             text eol=crlf
+*.bat             text eol=crlf
 
 .vscode           export-ignore
 .prettierrc       export-ignore
