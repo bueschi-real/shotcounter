@@ -1,6 +1,6 @@
 {
   "name": "rangliste",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Live-Rangliste für Gruppen: Erfassung auf dem Tablet, Anzeige auf einem separaten Bildschirm.",
   "main": "server.js",
   "type": "commonjs",
