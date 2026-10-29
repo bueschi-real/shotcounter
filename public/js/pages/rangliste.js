@@ -14,7 +14,7 @@
 
 import { api } from '../core/api.js';
 import { connectLive } from '../core/liveConnection.js';
-import { applyTheme, readThemeFromUrl } from '../core/theme.js';
+import { applyTheme, readThemeFromUrl, listenForRankingTheme } from '../core/theme.js';
 import { $ } from '../core/dom.js';
 import { RANGLISTE } from '../settings.js';
 import { createRankingBoard } from '../components/rankingBoard.js';
@@ -72,6 +72,9 @@ function autoHideCursor(idleMs = 3000) {
 async function init() {
   const options = readUrlOptions();
   applyTheme(options.theme);
+  
+    // Design-Wechsel aus der Erfassung (Tab im selben Browser) übernehmen
+  listenForRankingTheme();
 
   const config = await api.getConfig().catch(() => ({ appTitle: 'Rangliste' }));
   const title = options.title ?? config.appTitle;

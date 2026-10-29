@@ -13,6 +13,12 @@
  *
  * Über `setTheme()` kann das Design auch zur Laufzeit gewechselt werden (z. B.
  * im Menü der Erfassung). Der URL-Parameter wird dabei mitgeführt.
+ *
+ * Fernsteuerung der Rangliste: Die Erfassung kann das Design der Rangliste
+ * umschalten, ohne ihr eigenes Design zu ändern (`sendThemeToRanking()`).
+ * Die Rangliste meldet ihr aktuelles Design, damit die Erfassung im Menü den
+ * passenden Text anzeigen kann (`watchRankingTheme()`). Das funktioniert für
+ * Tabs IM SELBEN BROWSER (Technik: BroadcastChannel, ohne Server).
  */
 
 import { setUrlParam } from './url.js';
@@ -28,6 +34,24 @@ const THEME_COLORS = {
   dark: '#191f29',
   light: '#ffffff',
 };
+
+
+/**
+ * Kanal für Nachrichten zwischen Tabs desselben Browsers.
+ * `null`, falls der Browser BroadcastChannel nicht unterstützt.
+ * @type {BroadcastChannel|null}
+ */
+const channel = 'BroadcastChannel' in window ? new BroadcastChannel('rangliste-theme') : null;
+
+/** Nachrichtentypen auf dem Kanal. */
+const MESSAGES = Object.freeze({
+  /** Erfassung → Rangliste: "Welches Design hast du?" */
+  QUERY_RANKING_THEME: 'query-ranking-theme',
+  /** Erfassung → Rangliste: Design umschalten. Daten: `{ theme }` */
+  SET_RANKING_THEME: 'set-ranking-theme',
+  /** Rangliste → alle: aktuelles Design der Rangliste. Daten: `{ theme }` */
+  RANKING_THEME: 'ranking-theme',
+});
 
 /**
  * Liest das Design aus dem URL-Parameter `theme`.
@@ -73,4 +97,75 @@ export function getTheme() {
 export function setTheme(theme) {
   applyTheme(theme);
   setUrlParam('theme', theme === THEMES[0] ? null : theme);
+}
+
+
+/**
+ * Für die Rangliste: meldet das eigene Design an andere Tabs und reagiert auf
+ * Umschalt-Befehle aus der Erfassung. Einmal beim Start der Ranglisten-Seite
+ * aufrufen. Der URL-Parameter wird mit angepasst, damit das Design auch nach
+ * dem Neuladen erhalten bleibt.
+ *
+ * @returns {void}
+ */
+export function listenForRankingTheme() {
+  if (!channel) return;
+  const announce = () => channel.postMessage({ type: MESSAGES.RANKING_THEME, theme: getTheme() });
+
+  channel.addEventListener('message', (event) => {
+    const { type, theme } = event.data ?? {};
+    if (type === MESSAGES.SET_RANKING_THEME && THEMES.includes(theme)) {
+      setTheme(theme);
+      announce();
+    } else if (type === MESSAGES.QUERY_RANKING_THEME) {
+      announce();
+    }
+  });
+
+  announce(); // Erfassung über das Design beim Start informieren
+}
+
+/**
+ * Für die Erfassung: verfolgt das aktuelle Design der Rangliste.
+ * Fragt beim Aufruf einmal nach und ruft danach bei jeder Meldung einer
+ * Rangliste `onChange` auf.
+ *
+ * @param {(theme: 'dark'|'light') => void} onChange
+ * @returns {void}
+ */
+export function watchRankingTheme(onChange) {
+  if (!channel) return;
+  channel.addEventListener('message', (event) => {
+    const { type, theme } = event.data ?? {};
+    if (type === MESSAGES.RANKING_THEME && THEMES.includes(theme)) onChange(theme);
+  });
+  channel.postMessage({ type: MESSAGES.QUERY_RANKING_THEME });
+}
+
+/**
+ * Für die Erfassung: schaltet das Design aller offenen Ranglisten-Tabs in
+ * diesem Browser um. Das eigene Design bleibt unverändert.
+ *
+ * @param {'dark'|'light'} theme Gewünschtes Design der Rangliste.
+ * @param {object} [options]
+ * @param {number} [options.waitMs=500] Wie lange auf Bestätigungen gewartet wird.
+ * @returns {Promise<number>} Anzahl Ranglisten-Tabs, die umgeschaltet haben
+ *          (0 = keine Rangliste in diesem Browser offen).
+ */
+export function sendThemeToRanking(theme, { waitMs = 500 } = {}) {
+  if (!channel || !THEMES.includes(theme)) return Promise.resolve(0);
+
+  return new Promise((resolve) => {
+    let confirmed = 0;
+    const onMessage = (event) => {
+      if (event.data?.type === MESSAGES.RANKING_THEME && event.data.theme === theme) confirmed++;
+    };
+    channel.addEventListener('message', onMessage);
+    channel.postMessage({ type: MESSAGES.SET_RANKING_THEME, theme });
+
+    setTimeout(() => {
+      channel.removeEventListener('message', onMessage);
+      resolve(confirmed);
+    }, waitMs);
+  });
 }
