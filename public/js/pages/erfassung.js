@@ -17,7 +17,7 @@
 
 import { api } from '../core/api.js';
 import { connectLive } from '../core/liveConnection.js';
-import { applyTheme, readThemeFromUrl, getTheme, setTheme } from '../core/theme.js';
+import { applyTheme, readThemeFromUrl, getTheme, setTheme, sendThemeToRanking, watchRankingTheme } from '../core/theme.js';
 import { $, playAnimationOnce } from '../core/dom.js';
 import { formatSigned, pointsLabel } from '../core/format.js';
 import { readValue, writeValue, removeValue } from '../core/storage.js';
@@ -45,6 +45,8 @@ const state = {
   filter: '',
   /** ID einer neu erstellten Gruppe, die nach dem nächsten Zeichnen angezeigt werden soll. */
   focusGroupId: null,
+    /** Design der Rangliste (in Tabs desselben Browsers). Standard wie die Rangliste: dunkel. */
+  rankingTheme: 'dark',
 };
 
 /** Bereits erstellte Karten, nach Gruppen-ID. @type {Map<number, ReturnType<typeof createGroupCard>>} */
@@ -313,7 +315,8 @@ async function openMenu() {
     className: 'dialog--menu',
     actions: [
       { label: 'Rangliste in neuem Fenster öffnen', value: 'open' },
-      { label: getTheme() === 'light' ? 'Dunkles Design' : 'Helles Design', value: 'theme' },
+      { label: getTheme() === 'light' ? 'Erfassung: Dunkles Design' : 'Erfassung: Helles Design', value: 'theme' },
+      { label: state.rankingTheme === 'light' ? 'Rangliste: dunkles Design' : 'Rangliste: helles Design', value: 'rankingTheme' },
       { label: state.showQuickButtons ? 'Quickbuttons ausblenden' : 'Quickbuttons einblenden', value: 'quickButtons' },
       { label: 'Letzte Aktion zurücksetzen', value: 'reset'},
       { label: 'Alle Gruppen löschen', variant: 'danger', value: 'clear' },
@@ -325,6 +328,8 @@ async function openMenu() {
     window.open('/rangliste', '_blank');
   } else if (choice === 'theme') {
     setTheme(getTheme() === 'light' ? 'dark' : 'light');
+  } else if (choice === 'rankingTheme') {
+    await toggleRankingTheme();
   } else if (choice === 'quickButtons') {
     setQuickButtonsVisible(!state.showQuickButtons);
   } else if (choice === 'reset') {
@@ -348,6 +353,21 @@ async function deleteAllGroups() {
     action: (pin) => api.deleteAll(pin),
   });
   if (result !== undefined) showToast('Alle Gruppen gelöscht');
+}
+
+/**
+ * Schaltet das Design der Rangliste um (hell ↔ dunkel), ohne das Design der
+ * Erfassung zu ändern. Wirkt auf alle Ranglisten-Tabs in diesem Browser.
+ * @returns {Promise<void>}
+ */
+async function toggleRankingTheme() {
+  const theme = state.rankingTheme === 'light' ? 'dark' : 'light';
+  const count = await sendThemeToRanking(theme);
+  if (count > 0) {
+    showToast(`Rangliste auf ${theme === 'light' ? 'hell' : 'dunkel'} umgestellt`, { type: 'success' });
+  } else {
+    showToast('Keine Rangliste in diesem Browser geöffnet', { type: 'error' });
+  }
 }
 
 /**
@@ -471,6 +491,10 @@ function render() {
  */
 async function init() {
   applyTheme(readThemeFromUrl());
+  
+  watchRankingTheme((theme) => {
+    state.rankingTheme = theme;
+  });
 
   state.config = await api.getConfig().catch(() => ({
     appTitle: 'Rangliste',
