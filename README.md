@@ -18,18 +18,17 @@ Diese Anleitung führt Schritt für Schritt von einem frischen Windows-Rechner b
     - [Variante A: Mit Admin-Rechten](#variante-a-mit-admin-rechten)
     - [Variante B: Ohne Admin-Rechte](#variante-b-ohne-admin-rechte)
     - [Prüfen](#prüfen)
-  - [3. Anwendung herunterladen](#3-anwendung-herunterladen)
-  - [4. Anwendung starten und beenden](#4-anwendung-starten-und-beenden)
+  - [3. Anwendung starten und beenden](#3-anwendung-starten-und-beenden)
     - [Start](#start)
     - [Beenden](#beenden)
-  - [5. Einstellungen](#5-einstellungen)
-  - [6. Testdaten und Vorführmodus (optional)](#6-testdaten-und-vorführmodus-optional)
+  - [4. Einstellungen](#4-einstellungen)
+  - [5. Testdaten und Vorführmodus (optional)](#5-testdaten-und-vorführmodus-optional)
     - [Testdaten laden](#testdaten-laden)
     - [Vorführmodus (Simulation)](#vorführmodus-simulation)
     - [Funktionsprüfung](#funktionsprüfung)
-  - [7. Mit Tablet oder zweitem Gerät verbinden](#7-mit-tablet-oder-zweitem-gerät-verbinden)
-  - [8. Neue Version installieren](#8-neue-version-installieren)
-  - [9. Fehlerbehebung](#9-fehlerbehebung)
+  - [6. Mit Tablet oder zweitem Gerät verbinden](#6-mit-tablet-oder-zweitem-gerät-verbinden)
+  - [7. Neue Version installieren](#7-neue-version-installieren)
+  - [8. Fehlerbehebung](#8-fehlerbehebung)
 
 ---
 
@@ -80,32 +79,7 @@ Es müssen zwei Versionsnummern erscheinen. `node -v` muss **v22.13 oder höher*
 
 ---
 
-## 3. Anwendung herunterladen
-
-1. ZIP-Datei herunterladen:
-   - **GitHub:** grüne Schaltfläche **Code** → **Download ZIP**
-   - **GitLab:** Schaltfläche **Code** → unter «Download source code» **zip**
-2. Die ZIP-Datei an einen festen Ort entpacken, z. B. nach `C:\Users\<Name>\Rangliste`.
-   Dazu: Rechtsklick auf die ZIP-Datei → **Alle extrahieren…**
-
-Nach dem Entpacken sieht der Ordner etwa so aus:
-```
-Rangliste\
-├── data\
-├── public\
-├── scripts\
-├── src\
-├── start.cmd
-├── server.js
-└── …
-```
-Liegen diese Dateien in einem zusätzlichen Unterordner (z. B. `Rangliste\shotcounter-main\`), ist **dieser Unterordner** der Anwendungsordner. Er ist der Ordner, in dem `start.cmd` liegt.
-
-> Die Anwendung **nicht** direkt im Ordner «Downloads» oder in einem OneDrive-Ordner betreiben. Dort können Dateien gesperrt oder synchronisiert werden, was die Datenbank stört.
-
----
-
-## 4. Anwendung starten und beenden
+## 3. Anwendung starten und beenden
 
 ### Start
 
@@ -123,7 +97,7 @@ Alle Gruppen und Punkte werden lokal unter `data\rangliste.db` gespreichert und 
 
 ---
 
-## 5. Einstellungen
+## 4. Einstellungen
 
 Beim Start werden dieverse Einstellungen abgefragt:
 
@@ -134,7 +108,7 @@ Beim Start werden dieverse Einstellungen abgefragt:
 
 ---
 
-## 6. Testdaten und Vorführmodus (optional)
+## 5. Testdaten und Vorführmodus (optional)
 
 Diese Befehle werden im Terminal im Anwendungsordner ausgeführt.
 
@@ -173,7 +147,7 @@ Prüft die Anwendung automatisch. Die Ausgabe muss mit `# fail 0` enden. Bestehe
 
 ---
 
-## 7. Mit Tablet oder zweitem Gerät verbinden
+## 6. Mit Tablet oder zweitem Gerät verbinden
 
 1. Tablet und Rechner müssen im **gleichen Netzwerk** (WLAN) sein.
 2. Auf dem Tablet die Adresse aus dem Terminal öffnen: `Im Netzwerk: http://192.168.x.x:3000/`
@@ -187,7 +161,7 @@ Erreicht das Tablet die Seite nicht:
 
 ---
 
-## 8. Neue Version installieren
+## 7. Neue Version installieren
 
 1. Anwendung beenden.
 2. Neue ZIP-Datei herunterladen und **in einen neuen Ordner** entpacken (siehe Schritt 3).
@@ -198,7 +172,7 @@ Erreicht das Tablet die Seite nicht:
 
 ---
 
-## 9. Fehlerbehebung
+## 8. Fehlerbehebung
 
 | Problem | Ursache / Lösung |
 |---|---|
