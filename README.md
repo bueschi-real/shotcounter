@@ -70,11 +70,11 @@ Es müssen zwei Versionsnummern erscheinen. `node -v` muss **v22.13 oder höher*
 
 ### Start
 
-Solange Node.JS wie in [Schritt 2](#2-nodejs-installieren) beschrieben installiert ist, kann die Anwendung über `start.cmd` gestartet werden.
+Solange Node.JS wie in [Schritt 1](#1-nodejs-installieren) beschrieben installiert ist, kann die Anwendung über `start.cmd` gestartet werden.
 
 Bem ersten Start wird die Installation abgeschlossen, dies kann ca. 1 Minute dauern je nach Internet.
 
-Zusätzlich werden diverse Einstellungen bei jedem Start abgefragt. [Siehe Schritt 5](#5-einstellungen)
+Zusätzlich werden diverse Einstellungen bei jedem Start abgefragt. [Siehe Schritt 3](#3-einstellungen)
 
 ### Beenden
 
