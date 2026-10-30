@@ -13,40 +13,27 @@ Diese Anleitung führt Schritt für Schritt von einem frischen Windows-Rechner b
 
 - [Installation \& lokaler Start](#installation--lokaler-start)
   - [Inhalt](#inhalt)
-  - [1. Überblick: Was wird gebraucht?](#1-überblick-was-wird-gebraucht)
-  - [2. Node.js installieren](#2-nodejs-installieren)
+  - [1. Node.js installieren](#1-nodejs-installieren)
     - [Variante A: Mit Admin-Rechten](#variante-a-mit-admin-rechten)
     - [Variante B: Ohne Admin-Rechte](#variante-b-ohne-admin-rechte)
     - [Prüfen](#prüfen)
-  - [3. Anwendung starten und beenden](#3-anwendung-starten-und-beenden)
+  - [2. Anwendung starten und beenden](#2-anwendung-starten-und-beenden)
     - [Start](#start)
     - [Beenden](#beenden)
-  - [4. Einstellungen](#4-einstellungen)
-  - [5. Testdaten und Vorführmodus (optional)](#5-testdaten-und-vorführmodus-optional)
+  - [3. Einstellungen](#3-einstellungen)
+  - [4. Testdaten und Vorführmodus (optional)](#4-testdaten-und-vorführmodus-optional)
     - [Testdaten laden](#testdaten-laden)
     - [Vorführmodus (Simulation)](#vorführmodus-simulation)
     - [Funktionsprüfung](#funktionsprüfung)
-  - [6. Mit Tablet oder zweitem Gerät verbinden](#6-mit-tablet-oder-zweitem-gerät-verbinden)
-  - [7. Neue Version installieren](#7-neue-version-installieren)
-  - [8. Fehlerbehebung](#8-fehlerbehebung)
+  - [5. Mit Tablet oder zweitem Gerät verbinden](#5-mit-tablet-oder-zweitem-gerät-verbinden)
+  - [6. Neue Version installieren](#6-neue-version-installieren)
+  - [7. Fehlerbehebung](#7-fehlerbehebung)
 
 ---
 
-## 1. Überblick: Was wird gebraucht?
-
-| Was | Wozu |
-|---|---|
-| **Node.js** (mind. Version 22.13) | Führt die Anwendung aus. Enthält **npm** (lädt benötigte Bausteine herunter) und die eingebaute Datenbank |
-| **Die Anwendung** als ZIP-Datei | Programmdateien |
-| Internetzugang | Nur für den ersten Start bzw. nach Updates |
-
-Eine separate Datenbank, Git oder Docker sind **nicht** nötig.
+## 1. Node.js installieren
 
 > **Firmenrechner:** Für die normale Installation von Node.js braucht es Admin-Rechte. Es ist deshalb auch ein Weg **ohne Admin-Rechte** beschrieben.
-
----
-
-## 2. Node.js installieren
 
 ### Variante A: Mit Admin-Rechten
 
@@ -79,7 +66,7 @@ Es müssen zwei Versionsnummern erscheinen. `node -v` muss **v22.13 oder höher*
 
 ---
 
-## 3. Anwendung starten und beenden
+## 2. Anwendung starten und beenden
 
 ### Start
 
@@ -97,7 +84,7 @@ Alle Gruppen und Punkte werden lokal unter `data\rangliste.db` gespreichert und 
 
 ---
 
-## 4. Einstellungen
+## 3. Einstellungen
 
 Beim Start werden dieverse Einstellungen abgefragt:
 
@@ -108,7 +95,7 @@ Beim Start werden dieverse Einstellungen abgefragt:
 
 ---
 
-## 5. Testdaten und Vorführmodus (optional)
+## 4. Testdaten und Vorführmodus (optional)
 
 Diese Befehle werden im Terminal im Anwendungsordner ausgeführt.
 
@@ -147,7 +134,7 @@ Prüft die Anwendung automatisch. Die Ausgabe muss mit `# fail 0` enden. Bestehe
 
 ---
 
-## 6. Mit Tablet oder zweitem Gerät verbinden
+## 5. Mit Tablet oder zweitem Gerät verbinden
 
 1. Tablet und Rechner müssen im **gleichen Netzwerk** (WLAN) sein.
 2. Auf dem Tablet die Adresse aus dem Terminal öffnen: `Im Netzwerk: http://192.168.x.x:3000/`
@@ -161,7 +148,7 @@ Erreicht das Tablet die Seite nicht:
 
 ---
 
-## 7. Neue Version installieren
+## 6. Neue Version installieren
 
 1. Anwendung beenden.
 2. Neue ZIP-Datei herunterladen und **in einen neuen Ordner** entpacken (siehe Schritt 3).
@@ -172,7 +159,7 @@ Erreicht das Tablet die Seite nicht:
 
 ---
 
-## 8. Fehlerbehebung
+## 7. Fehlerbehebung
 
 | Problem | Ursache / Lösung |
 |---|---|
